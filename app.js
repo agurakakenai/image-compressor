@@ -35,7 +35,6 @@
   var renamePreview = document.getElementById('renamePreview');
   var renameBulkApply = document.getElementById('renameBulkApply');
 
-
   var selectedFiles = [];
   var convertedResults = [];
   var sizeLimit = 0;
@@ -48,6 +47,9 @@
     'tiff':{label:'TIFF',badge:'badge-tiff'},'tif':{label:'TIFF',badge:'badge-tiff'},
     'svg':{label:'SVG',badge:'badge-unknown'},
   };
+
+  // Yield to UI thread to prevent freeze
+  function yieldUI() { return new Promise(function(r) { setTimeout(r, 0); }); }
 
   // === Format preset ===
   presetCards.addEventListener('click', function(e) {
@@ -84,7 +86,7 @@
     });
   }
 
-  // === Rename ===
+  // === Rename preview ===
   function getDateStr() {
     var d = new Date();
     return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -98,6 +100,7 @@
   renamePrefix.addEventListener('input', updateRenamePreview);
   renameDateCheck.addEventListener('change', updateRenamePreview);
 
+  // Bulk rename apply → updates result card inputs
   renameBulkApply.addEventListener('click', function() {
     var p = renamePrefix.value.trim(); if (!p) return;
     var ds = renameDateCheck.checked ? getDateStr() + '_' : '';
@@ -107,8 +110,6 @@
     });
     renderResultsList();
   });
-
-
 
   // === File selection ===
   fileBtnTrigger.addEventListener('click', function(e) { e.stopPropagation(); fileInput.click(); });
@@ -138,13 +139,29 @@
   restartBtn.addEventListener('click', function() { resetAll(); window.scrollTo({top:0,behavior:'smooth'}); });
 
   function resetAll() {
-    selectedFiles = []; convertedResults = [];
+    selectedFiles = []; convertedResults = []; sizeLimit = 0;
     fileListSection.style.display = 'none'; settings.style.display = 'none';
     resultsSection.style.display = 'none'; progressSection.style.display = 'none';
     resultsList.innerHTML = ''; fileList.innerHTML = '';
-    resultsSummary.innerHTML = ''; renamePrefix.value = ''; renameDateCheck.checked = false;
-    renamePreview.textContent = '';
+    resultsSummary.innerHTML = ''; renamePrefix.value = '';
+    renameDateCheck.checked = false; renamePreview.textContent = '';
     dropZone.querySelector('.drop-text').textContent = 'ここに写真をドラッグ＆ドロップ';
+    // Reset size preset to "制限なし"
+    sizePresetCards.querySelectorAll('.size-preset').forEach(function(b) { b.classList.remove('active'); });
+    var noLimit = sizePresetCards.querySelector('[data-limit="0"]');
+    if (noLimit) noLimit.classList.add('active');
+    // Reset format to JPEG
+    presetCards.querySelectorAll('.preset-card').forEach(function(c) { c.classList.remove('active'); });
+    var jpegCard = presetCards.querySelector('[data-format="image/jpeg"]');
+    if (jpegCard) jpegCard.classList.add('active');
+    outputFormat.value = 'image/jpeg';
+    qualitySlider.value = 92; qualityValue.textContent = '92';
+    maxWidthSlider.value = 0; maxWidthValue.textContent = '変更なし';
+    qualityNote.classList.remove('visible');
+    sizePngNote.style.display = 'none';
+    sizePresetCards.querySelectorAll('.size-preset').forEach(function(b) {
+      b.disabled = false; b.classList.remove('preset-disabled');
+    });
   }
 
   function addFiles(newFiles) {
@@ -176,7 +193,7 @@
     }
   }
 
-  // === Format / Preview ===
+  // === Format detect ===
   function detectFormat(file) {
     var ext = getExt(file.name).toLowerCase();
     if (FORMAT_MAP[ext]) return {ext:ext, label:FORMAT_MAP[ext].label, badge:FORMAT_MAP[ext].badge};
@@ -191,6 +208,8 @@
     var n = f.name.toLowerCase();
     return n.endsWith('.heic')||n.endsWith('.heif')||f.type==='image/heic'||f.type==='image/heif';
   }
+
+  // === Preview ===
   function createPreview(file, container) {
     if (isHeic(file)) {
       var ph = document.createElement('div'); ph.className='file-item-thumb-placeholder'; ph.textContent='⏳';
@@ -240,15 +259,17 @@
     var blob = await rawConvert(file, baseQ, format, maxW);
     if (format === 'image/png' || target <= 0 || blob.size <= target) return blob;
     var lo = 0.05, hi = baseQ, best = null;
-    for (var i = 0; i < 8; i++) {
+    for (var i = 0; i < 6; i++) {
+      await yieldUI();
       var mid = (lo + hi) / 2;
       var c = await rawConvert(file, mid, format, maxW);
       if (c.size <= target) { best = c; lo = mid; } else { hi = mid; }
     }
     if (best) return best;
     var rw = maxW > 0 ? maxW : 1920;
-    for (var j = 0; j < 6; j++) {
-      rw = Math.round(rw * 0.7); if (rw < 200) break;
+    for (var j = 0; j < 5; j++) {
+      rw = Math.round(rw * 0.65); if (rw < 200) break;
+      await yieldUI();
       var r = await rawConvert(file, lo, format, rw);
       if (r.size <= target) return r;
     }
@@ -275,7 +296,7 @@
     convertBtn.querySelector('.convert-btn-text').textContent = '変換中…';
     convertBtn.querySelector('.convert-btn-icon').textContent = '⏳';
     resultsList.innerHTML = ''; resultsSummary.innerHTML = '';
-    renameList.innerHTML = ''; convertedResults = [];
+    convertedResults = [];
 
     progressSection.style.display = 'block'; progressBar.style.width = '0%';
     progressText.textContent = '⏳ 変換しています…';
@@ -292,6 +313,7 @@
       progressText.textContent = '⏳ ' + (i+1) + '枚目…';
       progressCount.textContent = (i+1) + ' / ' + selectedFiles.length;
       progressBar.style.width = ((i+1) / selectedFiles.length * 100) + '%';
+      await yieldUI(); // Let the browser update the progress bar
       try {
         var blob = await convertWithLimit(file, fmt, maxW, sizeLimit, q);
         var fi = detectFormat(file);
@@ -333,17 +355,57 @@
     resultsSection.scrollIntoView({behavior:'smooth',block:'start'});
   });
 
-  // === Render results ===
+  // === Render results (editable filename) ===
   function renderResultsList() {
     resultsList.innerHTML = '';
-    convertedResults.forEach(function(r) {
-      var card = document.createElement('div'); card.className = 'result-card';
-      card.innerHTML =
-        '<img class="result-thumb" src="' + r.thumbUrl + '" alt="">' +
-        '<div class="result-info"><div class="result-name">' + esc(r.fileName) +
-        '</div><div class="result-detail">' + fmtSize(r.originalSize) + ' → ' + fmtSize(r.convertedSize) + '</div></div>';
-      var dl = document.createElement('button'); dl.type='button'; dl.className='result-download'; dl.textContent='💾 保存';
+    convertedResults.forEach(function(r, idx) {
+      var card = document.createElement('div');
+      card.className = 'result-card';
+
+      var thumb = document.createElement('img');
+      thumb.className = 'result-thumb';
+      thumb.src = r.thumbUrl;
+
+      var info = document.createElement('div');
+      info.className = 'result-info';
+
+      var ext = r.fileName.match(/\.[^.]+$/)[0];
+      var nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.className = 'result-name-input';
+      nameInput.value = r.fileName.replace(/\.[^.]+$/, '');
+      nameInput.setAttribute('data-index', idx);
+      nameInput.setAttribute('data-ext', ext);
+      nameInput.addEventListener('change', function() {
+        var i = parseInt(this.getAttribute('data-index'), 10);
+        var v = this.value.trim();
+        if (v) convertedResults[i].fileName = v + this.getAttribute('data-ext');
+      });
+
+      var extLabel = document.createElement('span');
+      extLabel.className = 'result-ext';
+      extLabel.textContent = ext;
+
+      var nameRow = document.createElement('div');
+      nameRow.className = 'result-name-row';
+      nameRow.appendChild(nameInput);
+      nameRow.appendChild(extLabel);
+
+      var detail = document.createElement('div');
+      detail.className = 'result-detail';
+      detail.textContent = fmtSize(r.originalSize) + ' → ' + fmtSize(r.convertedSize);
+
+      info.appendChild(nameRow);
+      info.appendChild(detail);
+
+      var dl = document.createElement('button');
+      dl.type = 'button';
+      dl.className = 'result-download';
+      dl.textContent = '💾 保存';
       dl.addEventListener('click', function() { download(r); });
+
+      card.appendChild(thumb);
+      card.appendChild(info);
       card.appendChild(dl);
       resultsList.appendChild(card);
     });
@@ -351,8 +413,8 @@
 
   function renderErrorCard(name, msg) {
     var card = document.createElement('div'); card.className = 'result-card result-card-error';
-    card.innerHTML = '<div class="result-info"><div class="result-name">' + esc(name||'画像') +
-      '</div><div class="result-detail" style="color:#dc2626">⚠️ ' + esc(msg) + '</div></div>';
+    card.innerHTML = '<div class="result-info"><div class="result-name-row"><span style="font-weight:700;font-size:0.85rem">' + esc(name||'画像') +
+      '</span></div><div class="result-detail" style="color:#dc2626">⚠️ ' + esc(msg) + '</div></div>';
     resultsList.appendChild(card);
   }
 
