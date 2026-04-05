@@ -178,3 +178,12 @@ footer {
   .file-item { flex-wrap: wrap; }
   .file-item-thumb, .file-item-thumb-placeholder { width: 48px; height: 48px; }
 }
+
+/* File item delete button */
+.file-item-delete {
+  width: 28px; height: 28px; border-radius: 50%; border: none;
+  background: #f8d7da; color: #dc3545; font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; flex-shrink: 0; transition: background 0.2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.file-item-delete:hover { background: #dc3545; color: #fff; }

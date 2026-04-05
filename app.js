@@ -1,25 +1,27 @@
 (() => {
   'use strict';
 
-  const dropZone = document.getElementById('dropZone');
-  const fileInput = document.getElementById('fileInput');
-  const fileBtnTrigger = document.getElementById('fileBtnTrigger');
-  const fileListSection = document.getElementById('fileListSection');
-  const fileList = document.getElementById('fileList');
-  const settings = document.getElementById('settings');
-  const qualitySlider = document.getElementById('quality');
-  const qualityValue = document.getElementById('qualityValue');
-  const qualityNote = document.getElementById('qualityNote');
-  const outputFormat = document.getElementById('outputFormat');
-  const convertBtn = document.getElementById('convertBtn');
-  const resultsSection = document.getElementById('results');
-  const resultsList = document.getElementById('resultsList');
-  const downloadAllBtn = document.getElementById('downloadAllBtn');
+  var MAX_FILES = 10;
 
-  let selectedFiles = [];
-  let convertedResults = [];
+  var dropZone = document.getElementById('dropZone');
+  var fileInput = document.getElementById('fileInput');
+  var fileBtnTrigger = document.getElementById('fileBtnTrigger');
+  var fileListSection = document.getElementById('fileListSection');
+  var fileList = document.getElementById('fileList');
+  var settings = document.getElementById('settings');
+  var qualitySlider = document.getElementById('quality');
+  var qualityValue = document.getElementById('qualityValue');
+  var qualityNote = document.getElementById('qualityNote');
+  var outputFormat = document.getElementById('outputFormat');
+  var convertBtn = document.getElementById('convertBtn');
+  var resultsSection = document.getElementById('results');
+  var resultsList = document.getElementById('resultsList');
+  var downloadAllBtn = document.getElementById('downloadAllBtn');
 
-  const FORMAT_MAP = {
+  var selectedFiles = [];
+  var convertedResults = [];
+
+  var FORMAT_MAP = {
     'heic': { label: 'HEIC', badge: 'badge-heic' },
     'heif': { label: 'HEIF', badge: 'badge-heic' },
     'jpg':  { label: 'JPEG', badge: 'badge-jpeg' },
@@ -33,20 +35,19 @@
     'svg':  { label: 'SVG',  badge: 'badge-unknown' },
   };
 
-  // File button click - only this triggers file input
   fileBtnTrigger.addEventListener('click', function(e) {
     e.stopPropagation();
     fileInput.click();
   });
 
-  // Drop zone click (excluding the button area)
   dropZone.addEventListener('click', function(e) {
     if (e.target === fileBtnTrigger || e.target === fileInput) return;
     fileInput.click();
   });
 
   fileInput.addEventListener('change', function() {
-    if (fileInput.files.length > 0) handleFiles(fileInput.files);
+    if (fileInput.files.length > 0) addFiles(fileInput.files);
+    fileInput.value = '';
   });
 
   dropZone.addEventListener('dragover', function(e) {
@@ -61,21 +62,49 @@
   dropZone.addEventListener('drop', function(e) {
     e.preventDefault();
     dropZone.classList.remove('drag-over');
-    if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
+    if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files);
   });
 
-  function handleFiles(files) {
-    selectedFiles = [...files];
+  function addFiles(newFiles) {
+    var toAdd = [...newFiles];
+    var remaining = MAX_FILES - selectedFiles.length;
+
+    if (remaining <= 0) {
+      alert('最大 ' + MAX_FILES + ' 枚までです。不要なファイルを削除してから追加してください。');
+      return;
+    }
+
+    if (toAdd.length > remaining) {
+      alert('あと ' + remaining + ' 枚まで追加できます。先頭の ' + remaining + ' 枚を追加します。');
+      toAdd = toAdd.slice(0, remaining);
+    }
+
+    selectedFiles = selectedFiles.concat(toAdd);
+    updateUI();
+  }
+
+  function removeFile(index) {
+    selectedFiles.splice(index, 1);
+    updateUI();
+    if (selectedFiles.length === 0) {
+      fileListSection.style.display = 'none';
+      settings.style.display = 'none';
+      dropZone.querySelector('.drop-text').textContent = '画像ファイルをドラッグ＆ドロップ';
+    }
+  }
+
+  function updateUI() {
     resultsSection.style.display = 'none';
     resultsList.innerHTML = '';
     convertedResults = [];
 
-    dropZone.querySelector('.drop-text').textContent =
-      selectedFiles.length + ' 件のファイルを選択中';
-
-    renderFileList();
-    fileListSection.style.display = 'block';
-    settings.style.display = 'block';
+    if (selectedFiles.length > 0) {
+      dropZone.querySelector('.drop-text').textContent =
+        selectedFiles.length + ' / ' + MAX_FILES + ' 件選択中（追加ドロップ可）';
+      renderFileList();
+      fileListSection.style.display = 'block';
+      settings.style.display = 'block';
+    }
   }
 
   function detectFormat(file) {
@@ -137,7 +166,7 @@
 
   function renderFileList() {
     fileList.innerHTML = '';
-    selectedFiles.forEach(function(file) {
+    selectedFiles.forEach(function(file, index) {
       var fmt = detectFormat(file);
       var item = document.createElement('div');
       item.className = 'file-item';
@@ -147,6 +176,18 @@
           '<div class="file-item-meta">' + formatSize(file.size) + ' ・ ' + escapeHtml(fmt.label) + ' (' + escapeHtml(file.type || '不明') + ')</div>' +
         '</div>' +
         '<span class="file-item-badge ' + fmt.badge + '">' + escapeHtml(fmt.label) + '</span>';
+
+      // Delete button
+      var delBtn = document.createElement('button');
+      delBtn.className = 'file-item-delete';
+      delBtn.textContent = '✕';
+      delBtn.title = '削除';
+      delBtn.setAttribute('data-index', index);
+      delBtn.addEventListener('click', function() {
+        removeFile(parseInt(this.getAttribute('data-index'), 10));
+      });
+      item.appendChild(delBtn);
+
       createPreview(file, item);
       fileList.appendChild(item);
     });
