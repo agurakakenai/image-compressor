@@ -321,6 +321,12 @@ header h1 { font-size: 1.8rem; margin-bottom: 6px; }
 .faq details[open] summary::before { content: "▼ "; }
 .faq details p { margin-top: 8px; font-size: 0.88rem; color: #666; line-height: 1.7; }
 
+/* Ad slots */
+.ad-slot { margin: 24px 0; text-align: center; min-height: 0; overflow: hidden; }
+.ad-slot:empty { display: none; }
+.ad-slot .adsbygoogle { margin: 0 auto; }
+.ad-slot .adsbygoogle[data-ad-status="unfilled"] { display: none; }
+
 /* Footer */
 footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 18px 0; font-size: 0.78rem; }
 
