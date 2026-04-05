@@ -26,7 +26,7 @@
   var progressBar = document.getElementById('progressBar');
   var resultsSection = document.getElementById('results');
   var resultsList = document.getElementById('resultsList');
-  var summaryText = document.getElementById('resultsSummaryText');
+  var resultsSummary = document.getElementById('resultsSummary');
   var downloadZipBtn = document.getElementById('downloadZipBtn');
   var restartBtn = document.getElementById('restartBtn');
   var renameArea = document.getElementById('renameArea');
@@ -162,7 +162,7 @@
     fileListSection.style.display = 'none'; settings.style.display = 'none';
     resultsSection.style.display = 'none'; progressSection.style.display = 'none';
     resultsList.innerHTML = ''; fileList.innerHTML = ''; renameList.innerHTML = '';
-    summaryText.textContent = ''; renamePrefix.value = ''; renameDateCheck.checked = false;
+    resultsSummary.innerHTML = ''; renamePrefix.value = ''; renameDateCheck.checked = false;
     renamePreview.textContent = '';
     dropZone.querySelector('.drop-text').textContent = 'ここに写真をドラッグ＆ドロップ';
   }
@@ -294,7 +294,7 @@
     convertBtn.disabled = true;
     convertBtn.querySelector('.convert-btn-text').textContent = '変換中…';
     convertBtn.querySelector('.convert-btn-icon').textContent = '⏳';
-    resultsList.innerHTML = ''; summaryText.textContent = '';
+    resultsList.innerHTML = ''; resultsSummary.innerHTML = '';
     renameList.innerHTML = ''; convertedResults = [];
 
     progressSection.style.display = 'block'; progressBar.style.width = '0%';
@@ -329,13 +329,23 @@
 
     renderResultsList();
     if (ok > 0) {
-      var pct = totOrig > 0 ? Math.abs((1 - totConv / totOrig) * 100).toFixed(0) : 0;
-      var dir = totConv <= totOrig ? '軽く' : '大きく';
-      summaryText.textContent = ok + '枚変換しました（' + fmtSize(totOrig) + ' → ' + fmtSize(totConv) + '、' + pct + '%' + dir + 'なりました）';
+      var pct = totOrig > 0 ? ((1 - totConv / totOrig) * 100).toFixed(1) : 0;
+      var sign = pct >= 0 ? '小さくなりました' : '大きくなりました';
+      var limitInfo = '';
+      if (sizeLimit > 0) {
+        limitInfo = '<div class="summary-item"><span class="summary-label">📧 サイズ制限</span><span class="summary-value text-green">全枚 ' + fmtSize(sizeLimit) + ' 以下 ✓</span></div>';
+      }
+      resultsSummary.innerHTML =
+        '<div class="summary-card">' +
+          '<div class="summary-item"><span class="summary-label">変換成功</span><span class="summary-value">' + ok + ' / ' + selectedFiles.length + ' 枚</span></div>' +
+          '<div class="summary-item"><span class="summary-label">合計サイズ</span><span class="summary-value">' + fmtSize(totOrig) + ' → ' + fmtSize(totConv) + '</span></div>' +
+          '<div class="summary-item"><span class="summary-label">サイズ変化</span><span class="summary-value ' + (pct >= 0 ? 'text-green' : 'text-red') + '">' + Math.abs(pct) + '% ' + sign + '</span></div>' +
+          limitInfo +
+        '</div>';
     }
 
     renderRenameList();
-    renameArea.style.display = convertedResults.length > 0 ? '' : 'none';
+    renameArea.style.display = convertedResults.length > 0 ? 'block' : 'none';
     progressText.textContent = '✅ 完了！';
     resultsSection.style.display = 'block';
     convertBtn.disabled = false;

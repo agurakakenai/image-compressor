@@ -141,8 +141,9 @@
       <div class="results-done">
         <div class="results-done-icon">🎉</div>
         <h2 class="results-done-title">変換できました！</h2>
+        <p class="results-done-desc">下のボタンを押して、変換した写真を保存してください。</p>
       </div>
-      <p class="results-summary-text" id="resultsSummaryText"></p>
+      <div class="results-summary" id="resultsSummary"></div>
 
       <div class="results-download-area">
         <button type="button" class="download-main-btn" id="downloadZipBtn">
@@ -152,21 +153,24 @@
         </button>
       </div>
 
-      <!-- リネーム（折りたたみ） -->
-      <details class="rename-toggle" id="renameArea">
-        <summary>✏️ ファイル名を変更してからダウンロードする</summary>
-        <div class="rename-body">
-          <div class="rename-bulk">
-            <div class="rename-row">
-              <input type="text" id="renamePrefix" class="rename-input" placeholder="例：会議資料" maxlength="50">
-              <label class="rename-date-label"><input type="checkbox" id="renameDateCheck"> 日付</label>
-              <button type="button" class="rename-apply-btn" id="renameBulkApply">一括適用</button>
-            </div>
-            <p class="rename-preview" id="renamePreview"></p>
+      <!-- リネーム（変換後・ダウンロード前） -->
+      <div class="rename-area" id="renameArea">
+        <h3 class="sub-heading">✏️ ファイル名を変更する</h3>
+        <p class="sub-desc">そのままでよければ、何もしないでダウンロードへ進んでください。</p>
+        <div class="rename-bulk">
+          <h4 class="rename-label">📝 まとめて名前をつける（連番）</h4>
+          <div class="rename-row">
+            <input type="text" id="renamePrefix" class="rename-input" placeholder="例：会議資料" maxlength="50">
+            <label class="rename-date-label"><input type="checkbox" id="renameDateCheck"> 日付をつける</label>
+            <button type="button" class="rename-apply-btn" id="renameBulkApply">適用</button>
           </div>
+          <p class="rename-preview" id="renamePreview"></p>
+        </div>
+        <div class="rename-individual">
+          <h4 class="rename-label">🎯 個別に名前をつける</h4>
           <div class="rename-list" id="renameList"></div>
         </div>
-      </details>
+      </div>
 
       <div class="results-list" id="resultsList"></div>
 

@@ -193,6 +193,20 @@ header h1 { font-size: 1.8rem; margin-bottom: 6px; }
 .results-done-icon { font-size: 3rem; margin-bottom: 4px; animation: pop 0.5s ease; }
 @keyframes pop { 0%{transform:scale(0.3);opacity:0} 60%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
 .results-done-title { font-size: 1.3rem; font-weight: 800; color: #16a34a; margin-bottom: 4px; }
+.results-done-desc { font-size: 0.92rem; color: #666; }
+
+/* Summary card */
+.summary-card {
+  display: flex; gap: 14px; flex-wrap: wrap; margin: 16px 0;
+  background: #f0fdf4; border-radius: 12px; padding: 16px 20px;
+  border: 1px solid #bbf7d0; text-align: left;
+}
+.summary-item { display: flex; flex-direction: column; gap: 2px; min-width: 120px; flex: 1; }
+.summary-label { font-size: 0.75rem; color: #666; }
+.summary-value { font-size: 0.92rem; font-weight: 700; color: #333; }
+.text-green { color: #16a34a; }
+.text-red { color: #dc2626; }
+.results-summary-text { font-size: 0.92rem; color: #666; margin-bottom: 16px; }
 .results-summary-text { font-size: 0.92rem; color: #666; margin-bottom: 16px; }
 
 .results-download-area { margin-bottom: 16px; }
@@ -211,18 +225,19 @@ header h1 { font-size: 1.8rem; margin-bottom: 6px; }
 .download-main-text { font-size: 1.2rem; font-weight: 800; }
 .download-main-sub { font-size: 0.78rem; opacity: 0.8; }
 
-/* Rename toggle */
-.rename-toggle {
-  text-align: left; margin-bottom: 16px;
-  background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;
+/* Rename area */
+.rename-area {
+  text-align: left; margin: 16px 0; padding: 20px;
+  background: #f9fafb; border-radius: 14px; border: 1px solid #e5e7eb;
 }
-.rename-toggle summary {
-  padding: 12px 18px; cursor: pointer; font-weight: 600;
-  font-size: 0.88rem; color: #888; list-style: none;
+.rename-area .sub-heading { margin-bottom: 4px; }
+.rename-area .sub-desc { font-size: 0.85rem; color: #999; margin-bottom: 14px; }
+.rename-label {
+  font-size: 0.9rem; font-weight: 700; color: #444;
+  margin-bottom: 8px; margin-top: 14px;
 }
-.rename-toggle summary::-webkit-details-marker { display: none; }
-.rename-toggle[open] summary { border-bottom: 1px solid #e5e7eb; }
-.rename-body { padding: 16px 18px; }
+.rename-label:first-child { margin-top: 0; }
+.rename-individual { margin-top: 14px; }
 .rename-bulk { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #f0f0f0; }
 .rename-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .rename-input {
