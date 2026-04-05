@@ -3,9 +3,12 @@
 
   const dropZone = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
+  const fileListSection = document.getElementById('fileListSection');
+  const fileList = document.getElementById('fileList');
   const settings = document.getElementById('settings');
   const qualitySlider = document.getElementById('quality');
   const qualityValue = document.getElementById('qualityValue');
+  const qualityNote = document.getElementById('qualityNote');
   const outputFormat = document.getElementById('outputFormat');
   const convertBtn = document.getElementById('convertBtn');
   const resultsSection = document.getElementById('results');
@@ -14,6 +17,20 @@
 
   let selectedFiles = [];
   let convertedResults = [];
+
+  const FORMAT_MAP = {
+    'heic': { label: 'HEIC', badge: 'badge-heic', icon: '📱' },
+    'heif': { label: 'HEIF', badge: 'badge-heic', icon: '📱' },
+    'jpg':  { label: 'JPEG', badge: 'badge-jpeg', icon: '🖼️' },
+    'jpeg': { label: 'JPEG', badge: 'badge-jpeg', icon: '🖼️' },
+    'png':  { label: 'PNG',  badge: 'badge-png',  icon: '🖼️' },
+    'webp': { label: 'WebP', badge: 'badge-webp', icon: '🖼️' },
+    'gif':  { label: 'GIF',  badge: 'badge-gif',  icon: '🎞️' },
+    'bmp':  { label: 'BMP',  badge: 'badge-bmp',  icon: '🖼️' },
+    'tiff': { label: 'TIFF', badge: 'badge-tiff', icon: '🖼️' },
+    'tif':  { label: 'TIFF', badge: 'badge-tiff', icon: '🖼️' },
+    'svg':  { label: 'SVG',  badge: 'badge-unknown', icon: '📐' },
+  };
 
   // File selection
   dropZone.addEventListener('click', (e) => {
@@ -43,16 +60,61 @@
 
   function handleFiles(files) {
     selectedFiles = [...files];
-    settings.style.display = 'block';
     resultsSection.style.display = 'none';
     resultsList.innerHTML = '';
     convertedResults = [];
+
     dropZone.querySelector('.drop-text').textContent =
       selectedFiles.length + ' 件のファイルを選択中';
+
+    // Show file list with detected formats
+    renderFileList();
+    fileListSection.style.display = 'block';
+    settings.style.display = 'block';
   }
 
+  function detectFormat(file) {
+    const ext = getExtension(file.name).toLowerCase();
+    if (FORMAT_MAP[ext]) return { ext: ext, ...FORMAT_MAP[ext] };
+
+    // Fallback: try MIME type
+    const mime = file.type;
+    if (mime === 'image/heic' || mime === 'image/heif') return { ext: 'heic', ...FORMAT_MAP['heic'] };
+    if (mime === 'image/jpeg') return { ext: 'jpeg', ...FORMAT_MAP['jpeg'] };
+    if (mime === 'image/png') return { ext: 'png', ...FORMAT_MAP['png'] };
+    if (mime === 'image/webp') return { ext: 'webp', ...FORMAT_MAP['webp'] };
+    if (mime === 'image/gif') return { ext: 'gif', ...FORMAT_MAP['gif'] };
+    if (mime === 'image/bmp') return { ext: 'bmp', ...FORMAT_MAP['bmp'] };
+    if (mime === 'image/tiff') return { ext: 'tiff', ...FORMAT_MAP['tiff'] };
+
+    return { ext: ext || '?', label: ext.toUpperCase() || '不明', badge: 'badge-unknown', icon: '❓' };
+  }
+
+  function renderFileList() {
+    fileList.innerHTML = '';
+    selectedFiles.forEach((file) => {
+      const fmt = detectFormat(file);
+      const item = document.createElement('div');
+      item.className = 'file-item';
+      item.innerHTML =
+        '<span class="file-item-icon">' + fmt.icon + '</span>' +
+        '<div class="file-item-info">' +
+          '<div class="file-item-name">' + escapeHtml(file.name) + '</div>' +
+          '<div class="file-item-meta">' + formatSize(file.size) + ' ・ MIME: ' + escapeHtml(file.type || '不明') + '</div>' +
+        '</div>' +
+        '<span class="file-item-badge ' + fmt.badge + '">' + escapeHtml(fmt.label) + '</span>';
+      fileList.appendChild(item);
+    });
+  }
+
+  // Quality slider
   qualitySlider.addEventListener('input', () => {
     qualityValue.textContent = qualitySlider.value;
+  });
+
+  // Show/hide quality note based on format
+  outputFormat.addEventListener('change', () => {
+    qualityNote.classList.toggle('visible', outputFormat.value === 'image/png');
   });
 
   // Convert
@@ -84,24 +146,22 @@
 
   function isHeic(file) {
     const name = file.name.toLowerCase();
-    return name.endsWith('.heic') || name.endsWith('.heif');
+    return name.endsWith('.heic') || name.endsWith('.heif') ||
+      file.type === 'image/heic' || file.type === 'image/heif';
   }
 
   async function convertFile(file, quality, format) {
+    const fmt = detectFormat(file);
     let blob;
-    const fromExt = getExtension(file.name).toUpperCase() || file.type.split('/')[1]?.toUpperCase() || '?';
 
     if (isHeic(file)) {
-      // HEIC/HEIF -> use heic2any
       blob = await heic2any({
         blob: file,
         toType: format,
         quality: format === 'image/png' ? undefined : quality,
       });
-      // heic2any may return array for multi-image HEIC
       if (Array.isArray(blob)) blob = blob[0];
     } else {
-      // Other formats -> Canvas conversion
       blob = await canvasConvert(file, quality, format);
     }
 
@@ -118,7 +178,7 @@
       convertedSize: blob.size,
       fileName: baseName + ext,
       thumbUrl: thumbUrl,
-      fromExt: fromExt,
+      fromExt: fmt.label,
       toExt: toExt,
     };
   }
@@ -167,7 +227,7 @@
     card.innerHTML =
       '<img class="result-thumb" src="' + result.thumbUrl + '" alt="プレビュー">' +
       '<div class="result-info">' +
-        '<div class="result-name">' + escapeHtml(result.originalName) + '</div>' +
+        '<div class="result-name">' + escapeHtml(result.fileName) + '</div>' +
         '<div class="result-detail">' +
           '<span class="result-format from">' + escapeHtml(result.fromExt) + '</span>' +
           '<span class="result-arrow">→</span>' +

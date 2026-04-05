@@ -36,6 +36,35 @@ header h1 { font-size: 2rem; margin-bottom: 8px; }
 .file-btn:hover { opacity: 0.9; }
 .drop-hint { margin-top: 12px; font-size: 0.85rem; color: #aaa; }
 
+/* File list */
+.file-list-section {
+  background: #fff; border-radius: 12px; padding: 24px;
+  margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.file-list-section h2 { margin-bottom: 16px; font-size: 1.2rem; }
+.file-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.file-item:last-child { border-bottom: none; }
+.file-item-icon { font-size: 1.5rem; flex-shrink: 0; }
+.file-item-info { flex: 1; min-width: 0; }
+.file-item-name { font-weight: 600; font-size: 0.95rem; word-break: break-all; }
+.file-item-meta { font-size: 0.8rem; color: #888; margin-top: 2px; }
+.file-item-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 20px;
+  font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+}
+.badge-heic { background: #fff3cd; color: #856404; }
+.badge-jpeg { background: #d4edda; color: #155724; }
+.badge-png { background: #cce5ff; color: #004085; }
+.badge-webp { background: #e2d5f1; color: #4a1a8a; }
+.badge-gif { background: #fce4ec; color: #880e4f; }
+.badge-bmp { background: #e0e0e0; color: #333; }
+.badge-tiff { background: #f0e6d3; color: #6d4c00; }
+.badge-unknown { background: #f8d7da; color: #721c24; }
+
+/* Settings */
 .settings {
   background: #fff; border-radius: 12px; padding: 24px;
   margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -52,6 +81,8 @@ header h1 { font-size: 2rem; margin-bottom: 8px; }
   border-radius: 8px; font-size: 1rem; transition: border-color 0.2s;
 }
 .setting-item select:focus { outline: none; border-color: #00b4d8; }
+.quality-note { font-size: 0.75rem; color: #999; margin-top: 4px; display: none; }
+.quality-note.visible { display: block; }
 
 .convert-btn {
   width: 100%; padding: 12px;
@@ -64,6 +95,7 @@ header h1 { font-size: 2rem; margin-bottom: 8px; }
 .convert-btn:active { transform: scale(0.98); }
 .convert-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* Results */
 .results { margin-bottom: 32px; }
 .results-header {
   display: flex; justify-content: space-between; align-items: center;
@@ -100,6 +132,7 @@ header h1 { font-size: 2rem; margin-bottom: 8px; }
 }
 .result-download:hover { opacity: 0.85; }
 
+/* Features */
 .features { margin: 48px 0; }
 .features h2 { text-align: center; font-size: 1.4rem; margin-bottom: 24px; }
 .features-grid {
@@ -113,6 +146,7 @@ header h1 { font-size: 2rem; margin-bottom: 8px; }
 .feature-card h3 { font-size: 1rem; margin-bottom: 8px; }
 .feature-card p { font-size: 0.85rem; color: #666; }
 
+/* FAQ */
 .faq { margin: 48px 0; }
 .faq h2 { text-align: center; font-size: 1.4rem; margin-bottom: 24px; }
 details {
@@ -132,4 +166,5 @@ footer {
   header h1 { font-size: 1.5rem; }
   .drop-zone { padding: 40px 16px; }
   .result-card { flex-direction: column; text-align: center; }
+  .file-item { flex-wrap: wrap; }
 }

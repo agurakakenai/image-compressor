@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HEIC変換ツール - iPhone写真をJPEG/PNGに無料変換 | 拡張子変換</title>
-  <meta name="description" content="iPhoneで撮影したHEIC画像をJPEG・PNGに無料変換。ブラウザ内で処理するのでアップロード不要、プライバシーも安心。複数ファイル一括変換対応。">
-  <meta name="keywords" content="HEIC変換,HEIF変換,iPhone写真変換,HEIC JPEG変換,拡張子変換,画像変換,無料,オンライン">
-  <meta property="og:title" content="HEIC変換ツール - iPhone写真をJPEG/PNGに無料変換">
-  <meta property="og:description" content="iPhoneのHEIC画像をJPEG・PNGに無料変換。ブラウザ内で完結、アップロード不要。">
+  <title>画像形式変換ツール - HEIC/JPEG/PNG/WebPを無料変換 | 拡張子変換</title>
+  <meta name="description" content="画像ファイルの拡張子を自動判定し、JPEG・PNG・WebPに無料変換。HEIC対応。ブラウザ内で処理するのでアップロード不要、プライバシーも安心。">
+  <meta name="keywords" content="画像変換,拡張子変換,HEIC変換,JPEG変換,PNG変換,WebP変換,iPhone写真,無料,オンライン">
+  <meta property="og:title" content="画像形式変換ツール - HEIC/JPEG/PNG/WebPを無料変換">
+  <meta property="og:description" content="画像の拡張子を自動判定して好きな形式に変換。ブラウザ内完結でプライバシー安心。">
   <meta property="og:type" content="website">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://agurakakenai.github.io/image-compressor/">
@@ -17,8 +17,8 @@
 <body>
   <header>
     <div class="container">
-      <h1>📱 HEIC変換ツール</h1>
-      <p class="subtitle">iPhoneの写真をJPEG・PNGに一括変換 — アップロード不要でプライバシー安心</p>
+      <h1>🔄 画像形式変換ツール</h1>
+      <p class="subtitle">ドラッグ＆ドロップで拡張子を自動判定 → 好きな形式に変換</p>
     </div>
   </header>
 
@@ -33,14 +33,21 @@
     <section class="drop-zone" id="dropZone">
       <div class="drop-zone-content">
         <div class="drop-icon">📁</div>
-        <p class="drop-text">HEIC / 画像ファイルをドラッグ＆ドロップ</p>
+        <p class="drop-text">画像ファイルをドラッグ＆ドロップ</p>
         <p class="drop-subtext">または</p>
         <label class="file-btn" for="fileInput">ファイルを選択</label>
-        <input type="file" id="fileInput" accept=".heic,.heif,.jpg,.jpeg,.png,.webp,image/*" multiple hidden>
-        <p class="drop-hint">HEIC / HEIF / JPEG / PNG / WebP 対応 ・ 複数ファイルOK</p>
+        <input type="file" id="fileInput" accept=".heic,.heif,.jpg,.jpeg,.png,.webp,.bmp,.gif,.tiff,.tif,.svg,image/*" multiple hidden>
+        <p class="drop-hint">HEIC / JPEG / PNG / WebP / GIF / BMP / TIFF 対応 ・ 複数ファイルOK</p>
       </div>
     </section>
 
+    <!-- ファイル一覧 -->
+    <section class="file-list-section" id="fileListSection" style="display:none;">
+      <h2>読み込んだファイル</h2>
+      <div class="file-list" id="fileList"></div>
+    </section>
+
+    <!-- 変換設定 -->
     <section class="settings" id="settings" style="display:none;">
       <h2>変換設定</h2>
       <div class="settings-grid">
@@ -55,6 +62,7 @@
         <div class="setting-item">
           <label for="quality">品質: <span id="qualityValue">92</span>%</label>
           <input type="range" id="quality" min="10" max="100" value="92">
+          <p class="quality-note" id="qualityNote">※ PNGは可逆圧縮のため品質設定は適用されません</p>
         </div>
         <div class="setting-item">
           <button class="convert-btn" id="convertBtn">🔄 変換する</button>
@@ -62,6 +70,7 @@
       </div>
     </section>
 
+    <!-- 結果 -->
     <section class="results" id="results" style="display:none;">
       <div class="results-header">
         <h2>変換結果</h2>
@@ -74,19 +83,19 @@
       <h2>このツールの特徴</h2>
       <div class="features-grid">
         <div class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <h3>自動形式判定</h3>
+          <p>ドロップされた画像の拡張子・MIME タイプを自動で解析して表示します。</p>
+        </div>
+        <div class="feature-card">
           <div class="feature-icon">📱</div>
           <h3>iPhone HEIC対応</h3>
-          <p>iPhoneで撮影したHEIC/HEIF形式の写真を、汎用的なJPEG・PNGに簡単変換。</p>
+          <p>iPhoneで撮影したHEIC/HEIF形式にも完全対応。JPEG・PNGに簡単変換。</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🔒</div>
           <h3>プライバシー保護</h3>
           <p>すべてブラウザ内で処理。画像がサーバーに送信されることはありません。</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">⚡</div>
-          <h3>一括変換</h3>
-          <p>複数ファイルをまとめてドラッグ＆ドロップ。一括で変換＆ダウンロード。</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">💰</div>
@@ -99,8 +108,12 @@
     <section class="faq">
       <h2>よくある質問</h2>
       <details>
+        <summary>対応している画像形式は？</summary>
+        <p>入力：HEIC / HEIF / JPEG / PNG / WebP / GIF / BMP / TIFF に対応。出力：JPEG / PNG / WebP から選べます。</p>
+      </details>
+      <details>
         <summary>HEICとは何ですか？</summary>
-        <p>HEIC（High Efficiency Image Container）は、iPhoneやiPadで標準的に使われる画像形式です。高画質で容量が小さいのが特徴ですが、WindowsやAndroidでは開けないことがあります。</p>
+        <p>HEIC（High Efficiency Image Container）は、iPhoneやiPadで標準的に使われる画像形式です。WindowsやAndroidでは開けないことがあるため、JPEG等への変換が必要になります。</p>
       </details>
       <details>
         <summary>画像はサーバーにアップロードされますか？</summary>
@@ -109,10 +122,6 @@
       <details>
         <summary>変換枚数に制限はありますか？</summary>
         <p>ありません。何枚でも無料で変換できます。</p>
-      </details>
-      <details>
-        <summary>iPhoneのHEIC写真をJPEGに変換するには？</summary>
-        <p>上のエリアにHEICファイルをドラッグ＆ドロップし、変換先を「JPEG」にして「変換する」ボタンを押すだけです。</p>
       </details>
       <details>
         <summary>スマートフォンでも使えますか？</summary>
@@ -130,7 +139,7 @@
 
   <footer>
     <div class="container">
-      <p>&copy; 2026 HEIC変換ツール. すべての処理はブラウザ内で完結します。</p>
+      <p>&copy; 2026 画像形式変換ツール. すべての処理はブラウザ内で完結します。</p>
     </div>
   </footer>
 
@@ -141,10 +150,10 @@
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "HEICとは何ですか？",
+        "name": "対応している画像形式は？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "HEIC（High Efficiency Image Container）は、iPhoneやiPadで標準的に使われる画像形式です。高画質で容量が小さいのが特徴ですが、WindowsやAndroidでは開けないことがあります。"
+          "text": "入力：HEIC / HEIF / JPEG / PNG / WebP / GIF / BMP / TIFF に対応。出力：JPEG / PNG / WebP から選べます。"
         }
       },
       {
@@ -157,10 +166,10 @@
       },
       {
         "@type": "Question",
-        "name": "iPhoneのHEIC写真をJPEGに変換するには？",
+        "name": "HEICとは何ですか？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "上のエリアにHEICファイルをドラッグ＆ドロップし、変換先を「JPEG」にして「変換する」ボタンを押すだけです。"
+          "text": "iPhoneやiPadで標準的に使われる画像形式です。WindowsやAndroidでは開けないことがあるため変換が必要です。"
         }
       }
     ]
