@@ -16,9 +16,21 @@ header h1 { font-size: 2.2rem; margin-bottom: 8px; letter-spacing: 0.02em; }
 .subtitle { font-size: 1.1rem; opacity: 0.95; margin-bottom: 4px; }
 .subtitle-safe { font-size: 0.85rem; opacity: 0.8; }
 
-.ad-space { text-align: center; padding: 0; background: transparent; }
-.ad-space .adsbygoogle[data-ad-status="unfilled"] { display: none; }
-.ad-space:empty, .ad-space:not(:has(.adsbygoogle[data-ad-status="filled"])) { display: none; }
+/* === Sidebar Ads === */
+.page-body {
+  display: flex; justify-content: center; gap: 0;
+  max-width: 1300px; margin: 0 auto; padding: 0 10px;
+}
+.page-body > main { flex: 1; min-width: 0; max-width: 800px; }
+.ad-sidebar {
+  width: 160px; flex-shrink: 0; padding-top: 32px;
+  position: sticky; top: 20px; align-self: flex-start; height: fit-content;
+}
+.ad-sidebar .adsbygoogle { min-height: 600px; }
+@media (max-width: 1100px) {
+  .ad-sidebar { display: none; }
+  .page-body { padding: 0; }
+}
 
 /* === Step Section (shared) === */
 .step-section {
