@@ -14,7 +14,7 @@
   <!-- AdSense: 独自ドメイン取得後に有効化
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2977855943841890" crossorigin="anonymous"></script>
   -->
-  <link rel="stylesheet" href="style.css?v=10">
+  <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
   <header>
@@ -141,17 +141,9 @@
       <div class="results-done">
         <div class="results-done-icon">🎉</div>
         <h2 class="results-done-title">変換できました！</h2>
-        <p class="results-done-desc">下のボタンを押して、変換した写真を保存してください。</p>
+        <p class="results-done-desc">ファイル名や内容を確認して、ダウンロードしてください。</p>
       </div>
       <div class="results-summary" id="resultsSummary"></div>
-
-      <div class="results-download-area">
-        <button type="button" class="download-main-btn" id="downloadZipBtn">
-          <span class="download-main-icon">📥</span>
-          <span class="download-main-text">ダウンロード</span>
-          <span class="download-main-sub">まとめてZIPで保存</span>
-        </button>
-      </div>
 
       <!-- リネーム（変換後・ダウンロード前） -->
       <div class="rename-area" id="renameArea">
@@ -170,6 +162,14 @@
       </div>
 
       <div class="results-list" id="resultsList"></div>
+
+      <div class="results-download-area">
+        <button type="button" class="download-main-btn" id="downloadZipBtn">
+          <span class="download-main-icon">📥</span>
+          <span class="download-main-text">ダウンロード</span>
+          <span class="download-main-sub">まとめてZIPで保存</span>
+        </button>
+      </div>
 
       <button type="button" class="restart-btn" id="restartBtn">🔄 もう一度変換する</button>
     </section>
@@ -225,6 +225,6 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="app.js?v=10"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>
