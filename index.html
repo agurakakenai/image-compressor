@@ -14,7 +14,7 @@
   <!-- AdSense: 独自ドメイン取得後に有効化
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2977855943841890" crossorigin="anonymous"></script>
   -->
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <header>
@@ -113,6 +113,7 @@
       <div class="size-preset-section">
         <h3 class="sub-heading">📧 ファイルサイズの上限</h3>
         <p class="sub-desc">メール添付やLINE送信に便利。自動でそのサイズ以下に調整します。</p>
+        <p class="size-png-note" id="sizePngNote" style="display:none;">⚠️ PNG形式はサイズ調整ができないため、サイズ制限は使えません。JPEGかWebPをお選びください。</p>
         <div class="size-preset-cards" id="sizePresetCards">
           <button type="button" class="size-preset active" data-limit="0">
             <span class="size-preset-icon">❌</span>
@@ -131,19 +132,6 @@
             <span class="size-preset-name">ゆったり<br><small>2MB以下</small></span>
           </button>
         </div>
-      </div>
-
-      <!-- リネーム -->
-      <div class="rename-section">
-        <h3 class="sub-heading">✏️ ファイル名をまとめて変更</h3>
-        <p class="sub-desc">入力すると「会議資料_01.jpg, 会議資料_02.jpg」のように連番で保存されます。空欄なら元のファイル名のまま。</p>
-        <div class="rename-row">
-          <input type="text" id="renamePrefix" class="rename-input" placeholder="例：会議資料" maxlength="50">
-          <label class="rename-date-label">
-            <input type="checkbox" id="renameDateCheck"> 日付をつける
-          </label>
-        </div>
-        <p class="rename-preview" id="renamePreview"></p>
       </div>
     </section>
 
@@ -177,6 +165,32 @@
         <p class="results-done-desc">下のボタンを押して、変換した写真を保存してください。</p>
       </div>
       <div class="results-summary" id="resultsSummary"></div>
+
+      <!-- リネーム（変換後・ダウンロード前） -->
+      <div class="rename-area" id="renameArea">
+        <h3 class="sub-heading">✏️ ファイル名を変更する</h3>
+        <p class="sub-desc">そのままでよければ、何もしないでダウンロードへ進んでください。</p>
+
+        <!-- まとめてリネーム -->
+        <div class="rename-bulk">
+          <h4 class="rename-label">📝 まとめて名前をつける（連番）</h4>
+          <div class="rename-row">
+            <input type="text" id="renamePrefix" class="rename-input" placeholder="例：会議資料" maxlength="50">
+            <label class="rename-date-label">
+              <input type="checkbox" id="renameDateCheck"> 日付をつける
+            </label>
+            <button type="button" class="rename-apply-btn" id="renameBulkApply">適用</button>
+          </div>
+          <p class="rename-preview" id="renamePreview"></p>
+        </div>
+
+        <!-- 個別リネーム -->
+        <div class="rename-individual">
+          <h4 class="rename-label">🎯 個別に名前をつける</h4>
+          <div class="rename-list" id="renameList"></div>
+        </div>
+      </div>
+
       <div class="results-download-area">
         <button type="button" class="download-main-btn" id="downloadZipBtn">
           <span class="download-main-icon">📥</span>
@@ -292,6 +306,6 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="app.js?v=5"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>

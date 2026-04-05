@@ -226,6 +226,55 @@ header h1 { font-size: 2.2rem; margin-bottom: 8px; letter-spacing: 0.02em; }
 /* Size indicators in results */
 .size-ok { color: #16a34a; font-weight: 700; }
 .size-over { color: #dc2626; font-weight: 700; }
+.size-png-note {
+  background: #fef3c7; color: #92400e; padding: 10px 16px;
+  border-radius: 10px; font-size: 0.88rem; font-weight: 600;
+  margin-bottom: 12px; line-height: 1.6;
+}
+.preset-disabled {
+  opacity: 0.35; cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+/* === Rename Area (in results) === */
+.rename-area {
+  text-align: left; margin: 24px 0; padding: 24px;
+  background: #f9fafb; border-radius: 16px; border: 1px solid #e5e7eb;
+}
+.rename-area .sub-heading { margin-bottom: 4px; }
+.rename-area .sub-desc { margin-bottom: 16px; }
+.rename-label {
+  font-size: 0.95rem; font-weight: 700; color: #333;
+  margin-bottom: 8px; margin-top: 16px;
+}
+.rename-label:first-child { margin-top: 0; }
+.rename-bulk { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb; }
+.rename-apply-btn {
+  padding: 10px 24px; background: #2563eb; color: #fff; border: none;
+  border-radius: 10px; font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; transition: opacity 0.2s; white-space: nowrap;
+}
+.rename-apply-btn:hover { opacity: 0.85; }
+
+.rename-item {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+}
+.rename-item-thumb {
+  width: 40px; height: 40px; border-radius: 6px; object-fit: cover;
+  flex-shrink: 0; background: #f0f0f0;
+}
+.rename-item-input {
+  flex: 1; padding: 8px 12px; border: 2px solid #e5e7eb;
+  border-radius: 8px; font-size: 0.9rem; min-width: 0;
+}
+.rename-item-input:focus { outline: none; border-color: #2563eb; }
+.rename-item-ext {
+  font-size: 0.85rem; font-weight: 700; color: #888; flex-shrink: 0;
+}
+.result-card-error {
+  border-color: #fecaca; background: #fef2f2;
+}
 
 /* === STEP 3 : Convert Button === */
 .convert-btn {
