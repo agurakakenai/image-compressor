@@ -37,13 +37,16 @@
         <p class="drop-subtext">または</p>
         <button type="button" class="file-btn" id="fileBtnTrigger">ファイルを選択</button>
         <input type="file" id="fileInput" accept=".heic,.heif,.jpg,.jpeg,.png,.webp,.bmp,.gif,.tiff,.tif,.svg,image/*" multiple hidden>
-        <p class="drop-hint">HEIC / JPEG / PNG / WebP / GIF / BMP / TIFF 対応 ・ 最大10枚まで追加OK</p>
+        <p class="drop-hint">HEIC / JPEG / PNG / WebP / GIF / BMP / TIFF 対応 ・ 最大10枚まで追加OK<br>📋 クリップボードから貼り付け（Ctrl+V）にも対応</p>
       </div>
     </section>
 
     <!-- ファイル一覧 -->
     <section class="file-list-section" id="fileListSection" style="display:none;">
-      <h2>読み込んだファイル</h2>
+      <div class="file-list-header">
+        <h2>読み込んだファイル</h2>
+        <button class="clear-all-btn" id="clearAllBtn" title="すべてクリア">🗑 すべてクリア</button>
+      </div>
       <div class="file-list" id="fileList"></div>
     </section>
 
@@ -65,8 +68,24 @@
           <p class="quality-note" id="qualityNote">※ PNGは可逆圧縮のため品質設定は適用されません</p>
         </div>
         <div class="setting-item">
+          <label for="maxWidth">最大幅: <span id="maxWidthValue">変更なし</span></label>
+          <input type="range" id="maxWidth" min="0" max="4000" value="0" step="100">
+          <p class="resize-note">0 = リサイズなし（元のサイズを維持）</p>
+        </div>
+        <div class="setting-item setting-item-full">
           <button class="convert-btn" id="convertBtn">🔄 変換する</button>
         </div>
+      </div>
+    </section>
+
+    <!-- プログレスバー -->
+    <section class="progress-section" id="progressSection" style="display:none;">
+      <div class="progress-header">
+        <span id="progressText">変換中...</span>
+        <span id="progressCount">0 / 0</span>
+      </div>
+      <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="progressBar"></div>
       </div>
     </section>
 
@@ -74,8 +93,12 @@
     <section class="results" id="results" style="display:none;">
       <div class="results-header">
         <h2>変換結果</h2>
-        <button class="download-all-btn" id="downloadAllBtn">📦 すべてダウンロード</button>
+        <div class="results-actions">
+          <button class="download-zip-btn" id="downloadZipBtn">📦 ZIPでダウンロード</button>
+          <button class="download-all-btn" id="downloadAllBtn">💾 個別にすべてダウンロード</button>
+        </div>
       </div>
+      <div class="results-summary" id="resultsSummary"></div>
       <div class="results-list" id="resultsList"></div>
     </section>
 
@@ -176,6 +199,7 @@
   }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
