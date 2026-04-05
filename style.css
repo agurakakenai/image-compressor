@@ -8,33 +8,28 @@ body {
 .container { max-width: 960px; margin: 0 auto; padding: 0 20px; }
 
 header {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #00b4d8, #0077b6);
   color: #fff; padding: 32px 0; text-align: center;
 }
 header h1 { font-size: 2rem; margin-bottom: 8px; }
 .subtitle { font-size: 1rem; opacity: 0.9; }
 
 .ad-space { text-align: center; padding: 12px 0; background: #eee; }
-.ad-placeholder, .adsbygoogle {
-  display: block; width: 100%; min-height: 90px;
-
-
-}
 
 .drop-zone {
-  margin: 32px 0; padding: 60px 20px; border: 3px dashed #667eea;
+  margin: 32px 0; padding: 60px 20px; border: 3px dashed #00b4d8;
   border-radius: 16px; background: #fff; text-align: center;
   cursor: pointer; transition: all 0.3s ease;
 }
 .drop-zone:hover, .drop-zone.drag-over {
-  background: #f0f3ff; border-color: #764ba2; transform: scale(1.01);
+  background: #e8f8ff; border-color: #0077b6; transform: scale(1.01);
 }
 .drop-icon { font-size: 48px; margin-bottom: 12px; }
 .drop-text { font-size: 1.25rem; font-weight: 600; margin-bottom: 8px; }
 .drop-subtext { color: #999; margin-bottom: 12px; }
 .file-btn {
   display: inline-block; padding: 12px 32px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #00b4d8, #0077b6);
   color: #fff; border-radius: 8px; font-size: 1rem; font-weight: 600;
   cursor: pointer; transition: opacity 0.2s;
 }
@@ -51,25 +46,23 @@ header h1 { font-size: 2rem; margin-bottom: 8px; }
   gap: 20px; align-items: end;
 }
 .setting-item label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
-.setting-item input[type="range"] { width: 100%; accent-color: #667eea; }
-.setting-item input[type="number"],
+.setting-item input[type="range"] { width: 100%; accent-color: #00b4d8; }
 .setting-item select {
   width: 100%; padding: 10px 12px; border: 2px solid #e0e0e0;
   border-radius: 8px; font-size: 1rem; transition: border-color 0.2s;
 }
-.setting-item input[type="number"]:focus,
-.setting-item select:focus { outline: none; border-color: #667eea; }
+.setting-item select:focus { outline: none; border-color: #00b4d8; }
 
-.compress-btn {
+.convert-btn {
   width: 100%; padding: 12px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #00b4d8, #0077b6);
   color: #fff; border: none; border-radius: 8px;
   font-size: 1.1rem; font-weight: 700; cursor: pointer;
   transition: opacity 0.2s, transform 0.1s;
 }
-.compress-btn:hover { opacity: 0.9; }
-.compress-btn:active { transform: scale(0.98); }
-.compress-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.convert-btn:hover { opacity: 0.9; }
+.convert-btn:active { transform: scale(0.98); }
+.convert-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .results { margin-bottom: 32px; }
 .results-header {
@@ -95,13 +88,15 @@ header h1 { font-size: 2rem; margin-bottom: 8px; }
 }
 .result-info { flex: 1; min-width: 200px; }
 .result-name { font-weight: 600; margin-bottom: 4px; word-break: break-all; }
-.result-sizes { font-size: 0.9rem; color: #666; }
-.result-saving { font-weight: 700; color: #28a745; }
-.result-saving.negative { color: #dc3545; }
+.result-detail { font-size: 0.9rem; color: #666; }
+.result-format { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+.result-format.from { background: #ffe0e0; color: #c00; }
+.result-format.to { background: #d4edda; color: #155724; }
+.result-arrow { margin: 0 6px; color: #999; }
 .result-download {
-  padding: 10px 20px; background: #667eea; color: #fff; border: none;
+  padding: 10px 20px; background: #00b4d8; color: #fff; border: none;
   border-radius: 8px; font-weight: 600; cursor: pointer;
-  text-decoration: none; transition: opacity 0.2s; flex-shrink: 0;
+  transition: opacity 0.2s; flex-shrink: 0;
 }
 .result-download:hover { opacity: 0.85; }
 
@@ -125,7 +120,7 @@ details {
   margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); cursor: pointer;
 }
 details summary { font-weight: 600; font-size: 0.95rem; list-style: none; }
-details summary::before { content: "▶ "; font-size: 0.8rem; color: #667eea; }
+details summary::before { content: "▶ "; font-size: 0.8rem; color: #00b4d8; }
 details[open] summary::before { content: "▼ "; }
 details p { margin-top: 12px; font-size: 0.9rem; color: #555; }
 
@@ -137,5 +132,4 @@ footer {
   header h1 { font-size: 1.5rem; }
   .drop-zone { padding: 40px 16px; }
   .result-card { flex-direction: column; text-align: center; }
-  .ad-placeholder, .adsbygoogle { width: 320px; height: 50px; line-height: 50px; }
 }

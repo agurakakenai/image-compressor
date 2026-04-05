@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>画像圧縮ツール - 無料でブラウザ内完結 | Image Compressor</title>
-  <meta name="description" content="完全無料の画像圧縮ツール。ブラウザ内で処理するのでアップロード不要、プライバシーも安心。JPEG・PNG・WebPに対応。">
-  <meta name="keywords" content="画像圧縮,画像リサイズ,image compressor,写真圧縮,無料,オンライン">
-  <meta property="og:title" content="画像圧縮ツール - 無料でブラウザ内完結">
-  <meta property="og:description" content="完全無料の画像圧縮ツール。ブラウザ内で処理するのでアップロード不要、プライバシーも安心。">
+  <title>HEIC変換ツール - iPhone写真をJPEG/PNGに無料変換 | 拡張子変換</title>
+  <meta name="description" content="iPhoneで撮影したHEIC画像をJPEG・PNGに無料変換。ブラウザ内で処理するのでアップロード不要、プライバシーも安心。複数ファイル一括変換対応。">
+  <meta name="keywords" content="HEIC変換,HEIF変換,iPhone写真変換,HEIC JPEG変換,拡張子変換,画像変換,無料,オンライン">
+  <meta property="og:title" content="HEIC変換ツール - iPhone写真をJPEG/PNGに無料変換">
+  <meta property="og:description" content="iPhoneのHEIC画像をJPEG・PNGに無料変換。ブラウザ内で完結、アップロード不要。">
   <meta property="og:type" content="website">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://agurakakenai.github.io/image-compressor/">
@@ -17,8 +17,8 @@
 <body>
   <header>
     <div class="container">
-      <h1>🖼️ 画像圧縮ツール</h1>
-      <p class="subtitle">ブラウザ内で完結 — アップロード不要でプライバシー安心</p>
+      <h1>📱 HEIC変換ツール</h1>
+      <p class="subtitle">iPhoneの写真をJPEG・PNGに一括変換 — アップロード不要でプライバシー安心</p>
     </div>
   </header>
 
@@ -33,42 +33,38 @@
     <section class="drop-zone" id="dropZone">
       <div class="drop-zone-content">
         <div class="drop-icon">📁</div>
-        <p class="drop-text">画像をドラッグ＆ドロップ</p>
+        <p class="drop-text">HEIC / 画像ファイルをドラッグ＆ドロップ</p>
         <p class="drop-subtext">または</p>
         <label class="file-btn" for="fileInput">ファイルを選択</label>
-        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" multiple hidden>
-        <p class="drop-hint">JPEG / PNG / WebP 対応 ・ 複数ファイルOK</p>
+        <input type="file" id="fileInput" accept=".heic,.heif,.jpg,.jpeg,.png,.webp,image/*" multiple hidden>
+        <p class="drop-hint">HEIC / HEIF / JPEG / PNG / WebP 対応 ・ 複数ファイルOK</p>
       </div>
     </section>
 
     <section class="settings" id="settings" style="display:none;">
-      <h2>圧縮設定</h2>
+      <h2>変換設定</h2>
       <div class="settings-grid">
         <div class="setting-item">
-          <label for="quality">品質: <span id="qualityValue">80</span>%</label>
-          <input type="range" id="quality" min="10" max="100" value="80">
-        </div>
-        <div class="setting-item">
-          <label for="maxWidth">最大幅 (px)</label>
-          <input type="number" id="maxWidth" value="1920" min="100" max="10000">
-        </div>
-        <div class="setting-item">
-          <label for="outputFormat">出力形式</label>
+          <label for="outputFormat">変換先の形式</label>
           <select id="outputFormat">
-            <option value="image/jpeg">JPEG</option>
-            <option value="image/png">PNG</option>
-            <option value="image/webp" selected>WebP</option>
+            <option value="image/jpeg" selected>JPEG (.jpg)</option>
+            <option value="image/png">PNG (.png)</option>
+            <option value="image/webp">WebP (.webp)</option>
           </select>
         </div>
         <div class="setting-item">
-          <button class="compress-btn" id="compressBtn">🚀 圧縮する</button>
+          <label for="quality">品質: <span id="qualityValue">92</span>%</label>
+          <input type="range" id="quality" min="10" max="100" value="92">
+        </div>
+        <div class="setting-item">
+          <button class="convert-btn" id="convertBtn">🔄 変換する</button>
         </div>
       </div>
     </section>
 
     <section class="results" id="results" style="display:none;">
       <div class="results-header">
-        <h2>圧縮結果</h2>
+        <h2>変換結果</h2>
         <button class="download-all-btn" id="downloadAllBtn">📦 すべてダウンロード</button>
       </div>
       <div class="results-list" id="resultsList"></div>
@@ -78,24 +74,24 @@
       <h2>このツールの特徴</h2>
       <div class="features-grid">
         <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>iPhone HEIC対応</h3>
+          <p>iPhoneで撮影したHEIC/HEIF形式の写真を、汎用的なJPEG・PNGに簡単変換。</p>
+        </div>
+        <div class="feature-card">
           <div class="feature-icon">🔒</div>
           <h3>プライバシー保護</h3>
-          <p>画像はサーバーにアップロードされません。すべてブラウザ内で処理されます。</p>
+          <p>すべてブラウザ内で処理。画像がサーバーに送信されることはありません。</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">⚡</div>
-          <h3>高速処理</h3>
-          <p>サーバー通信不要。大きなファイルでも瞬時に圧縮。</p>
+          <h3>一括変換</h3>
+          <p>複数ファイルをまとめてドラッグ＆ドロップ。一括で変換＆ダウンロード。</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">💰</div>
           <h3>完全無料</h3>
-          <p>登録不要・制限なし。何枚でも無料で圧縮できます。</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📱</div>
-          <h3>スマホ対応</h3>
-          <p>PC・スマホ・タブレット、どのデバイスでも利用可能。</p>
+          <p>登録不要・制限なし。何枚でも無料で変換できます。</p>
         </div>
       </div>
     </section>
@@ -103,20 +99,24 @@
     <section class="faq">
       <h2>よくある質問</h2>
       <details>
+        <summary>HEICとは何ですか？</summary>
+        <p>HEIC（High Efficiency Image Container）は、iPhoneやiPadで標準的に使われる画像形式です。高画質で容量が小さいのが特徴ですが、WindowsやAndroidでは開けないことがあります。</p>
+      </details>
+      <details>
         <summary>画像はサーバーにアップロードされますか？</summary>
         <p>いいえ。すべての処理はブラウザ内で行われます。画像データが外部に送信されることは一切ありません。</p>
       </details>
       <details>
-        <summary>対応している画像形式は？</summary>
-        <p>JPEG・PNG・WebP の入出力に対応しています。</p>
+        <summary>変換枚数に制限はありますか？</summary>
+        <p>ありません。何枚でも無料で変換できます。</p>
       </details>
       <details>
-        <summary>圧縮枚数に制限はありますか？</summary>
-        <p>ありません。何枚でも無料で圧縮できます。</p>
+        <summary>iPhoneのHEIC写真をJPEGに変換するには？</summary>
+        <p>上のエリアにHEICファイルをドラッグ＆ドロップし、変換先を「JPEG」にして「変換する」ボタンを押すだけです。</p>
       </details>
       <details>
         <summary>スマートフォンでも使えますか？</summary>
-        <p>はい。レスポンシブ対応済みです。</p>
+        <p>はい。レスポンシブ対応済みで、スマートフォンからもご利用いただけます。</p>
       </details>
     </section>
   </main>
@@ -130,7 +130,7 @@
 
   <footer>
     <div class="container">
-      <p>&copy; 2026 画像圧縮ツール. すべての処理はブラウザ内で完結します。</p>
+      <p>&copy; 2026 HEIC変換ツール. すべての処理はブラウザ内で完結します。</p>
     </div>
   </footer>
 
@@ -141,6 +141,14 @@
     "mainEntity": [
       {
         "@type": "Question",
+        "name": "HEICとは何ですか？",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "HEIC（High Efficiency Image Container）は、iPhoneやiPadで標準的に使われる画像形式です。高画質で容量が小さいのが特徴ですが、WindowsやAndroidでは開けないことがあります。"
+        }
+      },
+      {
+        "@type": "Question",
         "name": "画像はサーバーにアップロードされますか？",
         "acceptedAnswer": {
           "@type": "Answer",
@@ -149,23 +157,16 @@
       },
       {
         "@type": "Question",
-        "name": "対応している画像形式は？",
+        "name": "iPhoneのHEIC写真をJPEGに変換するには？",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "JPEG・PNG・WebP の入出力に対応しています。"
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "圧縮枚数に制限はありますか？",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "ありません。何枚でも無料で圧縮できます。"
+          "text": "上のエリアにHEICファイルをドラッグ＆ドロップし、変換先を「JPEG」にして「変換する」ボタンを押すだけです。"
         }
       }
     ]
   }
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

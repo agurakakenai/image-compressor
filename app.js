@@ -6,16 +6,16 @@
   const settings = document.getElementById('settings');
   const qualitySlider = document.getElementById('quality');
   const qualityValue = document.getElementById('qualityValue');
-  const maxWidthInput = document.getElementById('maxWidth');
   const outputFormat = document.getElementById('outputFormat');
-  const compressBtn = document.getElementById('compressBtn');
+  const convertBtn = document.getElementById('convertBtn');
   const resultsSection = document.getElementById('results');
   const resultsList = document.getElementById('resultsList');
   const downloadAllBtn = document.getElementById('downloadAllBtn');
 
   let selectedFiles = [];
-  let compressedResults = [];
+  let convertedResults = [];
 
+  // File selection
   dropZone.addEventListener('click', (e) => {
     if (e.target.closest('.file-btn') || e.target === dropZone || e.target.closest('.drop-zone-content')) {
       fileInput.click();
@@ -38,10 +38,7 @@
   dropZone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropZone.classList.remove('drag-over');
-    const files = [...e.dataTransfer.files].filter((f) =>
-      ['image/jpeg', 'image/png', 'image/webp'].includes(f.type)
-    );
-    if (files.length > 0) handleFiles(files);
+    if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
   });
 
   function handleFiles(files) {
@@ -49,7 +46,7 @@
     settings.style.display = 'block';
     resultsSection.style.display = 'none';
     resultsList.innerHTML = '';
-    compressedResults = [];
+    convertedResults = [];
     dropZone.querySelector('.drop-text').textContent =
       selectedFiles.length + ' 件のファイルを選択中';
   }
@@ -58,21 +55,21 @@
     qualityValue.textContent = qualitySlider.value;
   });
 
-  compressBtn.addEventListener('click', async () => {
+  // Convert
+  convertBtn.addEventListener('click', async () => {
     if (selectedFiles.length === 0) return;
-    compressBtn.disabled = true;
-    compressBtn.textContent = '⏳ 圧縮中...';
+    convertBtn.disabled = true;
+    convertBtn.textContent = '⏳ 変換中...';
     resultsList.innerHTML = '';
-    compressedResults = [];
+    convertedResults = [];
 
     const quality = parseInt(qualitySlider.value, 10) / 100;
-    const maxWidth = parseInt(maxWidthInput.value, 10);
     const format = outputFormat.value;
 
     for (const file of selectedFiles) {
       try {
-        const result = await compressImage(file, quality, maxWidth, format);
-        compressedResults.push(result);
+        const result = await convertFile(file, quality, format);
+        convertedResults.push(result);
         renderResultCard(result);
       } catch (err) {
         renderErrorCard(file.name, err.message);
@@ -80,40 +77,66 @@
     }
 
     resultsSection.style.display = 'block';
-    compressBtn.disabled = false;
-    compressBtn.textContent = '🚀 圧縮する';
+    convertBtn.disabled = false;
+    convertBtn.textContent = '🔄 変換する';
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
-  function compressImage(file, quality, maxWidth, format) {
+  function isHeic(file) {
+    const name = file.name.toLowerCase();
+    return name.endsWith('.heic') || name.endsWith('.heif');
+  }
+
+  async function convertFile(file, quality, format) {
+    let blob;
+    const fromExt = getExtension(file.name).toUpperCase() || file.type.split('/')[1]?.toUpperCase() || '?';
+
+    if (isHeic(file)) {
+      // HEIC/HEIF -> use heic2any
+      blob = await heic2any({
+        blob: file,
+        toType: format,
+        quality: format === 'image/png' ? undefined : quality,
+      });
+      // heic2any may return array for multi-image HEIC
+      if (Array.isArray(blob)) blob = blob[0];
+    } else {
+      // Other formats -> Canvas conversion
+      blob = await canvasConvert(file, quality, format);
+    }
+
+    const ext = format === 'image/jpeg' ? '.jpg'
+      : format === 'image/png' ? '.png' : '.webp';
+    const toExt = ext.replace('.', '').toUpperCase();
+    const baseName = file.name.replace(/\.[^.]+$/, '');
+    const thumbUrl = URL.createObjectURL(blob);
+
+    return {
+      originalName: file.name,
+      originalSize: file.size,
+      convertedBlob: blob,
+      convertedSize: blob.size,
+      fileName: baseName + ext,
+      thumbUrl: thumbUrl,
+      fromExt: fromExt,
+      toExt: toExt,
+    };
+  }
+
+  function canvasConvert(file, quality, format) {
     return new Promise((resolve, reject) => {
       const img = new Image();
       const url = URL.createObjectURL(file);
       img.onload = () => {
         URL.revokeObjectURL(url);
-        let { width, height } = img;
-        if (width > maxWidth) {
-          height = Math.round((height * maxWidth) / width);
-          width = maxWidth;
-        }
         const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.width = img.width;
+        canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0);
         canvas.toBlob(
           (blob) => {
-            if (!blob) { reject(new Error('圧縮に失敗しました')); return; }
-            const ext = format === 'image/jpeg' ? '.jpg'
-              : format === 'image/png' ? '.png' : '.webp';
-            const baseName = file.name.replace(/\.[^.]+$/, '');
-            resolve({
-              originalName: file.name,
-              originalSize: file.size,
-              compressedBlob: blob,
-              compressedSize: blob.size,
-              fileName: baseName + '_compressed' + ext,
-              thumbUrl: URL.createObjectURL(blob),
-            });
+            if (!blob) { reject(new Error('変換に失敗しました')); return; }
+            resolve(blob);
           },
           format,
           format === 'image/png' ? undefined : quality
@@ -127,6 +150,11 @@
     });
   }
 
+  function getExtension(name) {
+    const m = name.match(/\.([^.]+)$/);
+    return m ? m[1] : '';
+  }
+
   function formatSize(bytes) {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
@@ -134,20 +162,17 @@
   }
 
   function renderResultCard(result) {
-    const saving = result.originalSize - result.compressedSize;
-    const percent = ((saving / result.originalSize) * 100).toFixed(1);
-    const isSmaller = saving > 0;
     const card = document.createElement('div');
     card.className = 'result-card';
     card.innerHTML =
       '<img class="result-thumb" src="' + result.thumbUrl + '" alt="プレビュー">' +
       '<div class="result-info">' +
         '<div class="result-name">' + escapeHtml(result.originalName) + '</div>' +
-        '<div class="result-sizes">' +
-          formatSize(result.originalSize) + ' → ' + formatSize(result.compressedSize) +
-          ' <span class="result-saving ' + (isSmaller ? '' : 'negative') + '">' +
-            '(' + (isSmaller ? '-' : '+') + Math.abs(percent) + '%)' +
-          '</span>' +
+        '<div class="result-detail">' +
+          '<span class="result-format from">' + escapeHtml(result.fromExt) + '</span>' +
+          '<span class="result-arrow">→</span>' +
+          '<span class="result-format to">' + escapeHtml(result.toExt) + '</span>' +
+          '  ' + formatSize(result.originalSize) + ' → ' + formatSize(result.convertedSize) +
         '</div>' +
       '</div>';
     const dlBtn = document.createElement('button');
@@ -164,7 +189,7 @@
     card.innerHTML =
       '<div class="result-info">' +
         '<div class="result-name">' + escapeHtml(name) + '</div>' +
-        '<div class="result-sizes" style="color:#dc3545;">⚠️ ' + escapeHtml(message) + '</div>' +
+        '<div class="result-detail" style="color:#dc3545;">⚠️ ' + escapeHtml(message) + '</div>' +
       '</div>';
     resultsList.appendChild(card);
   }
@@ -185,6 +210,6 @@
   }
 
   downloadAllBtn.addEventListener('click', () => {
-    compressedResults.forEach((r) => downloadFile(r));
+    convertedResults.forEach((r) => downloadFile(r));
   });
 })();
