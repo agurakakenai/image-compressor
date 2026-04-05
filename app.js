@@ -34,7 +34,7 @@
   var renameDateCheck = document.getElementById('renameDateCheck');
   var renamePreview = document.getElementById('renamePreview');
   var renameBulkApply = document.getElementById('renameBulkApply');
-  var renameList = document.getElementById('renameList');
+
 
   var selectedFiles = [];
   var convertedResults = [];
@@ -105,30 +105,10 @@
       var ext = r.fileName.match(/\.[^.]+$/)[0];
       r.fileName = ds + p + '_' + String(i+1).padStart(2,'0') + ext;
     });
-    renderRenameList();
     renderResultsList();
   });
 
-  function renderRenameList() {
-    renameList.innerHTML = '';
-    convertedResults.forEach(function(r, i) {
-      var row = document.createElement('div'); row.className = 'rename-item';
-      var thumb = document.createElement('img'); thumb.className = 'rename-item-thumb'; thumb.src = r.thumbUrl;
-      var ext = r.fileName.match(/\.[^.]+$/)[0];
-      var input = document.createElement('input'); input.type = 'text';
-      input.className = 'rename-item-input';
-      input.value = r.fileName.replace(/\.[^.]+$/, '');
-      input.setAttribute('data-index', i); input.setAttribute('data-ext', ext);
-      input.addEventListener('change', function() {
-        var idx = parseInt(this.getAttribute('data-index'), 10);
-        var n = this.value.trim();
-        if (n) { convertedResults[idx].fileName = n + this.getAttribute('data-ext'); renderResultsList(); }
-      });
-      var extSpan = document.createElement('span'); extSpan.className = 'rename-item-ext'; extSpan.textContent = ext;
-      row.appendChild(thumb); row.appendChild(input); row.appendChild(extSpan);
-      renameList.appendChild(row);
-    });
-  }
+
 
   // === File selection ===
   fileBtnTrigger.addEventListener('click', function(e) { e.stopPropagation(); fileInput.click(); });
@@ -161,7 +141,7 @@
     selectedFiles = []; convertedResults = [];
     fileListSection.style.display = 'none'; settings.style.display = 'none';
     resultsSection.style.display = 'none'; progressSection.style.display = 'none';
-    resultsList.innerHTML = ''; fileList.innerHTML = ''; renameList.innerHTML = '';
+    resultsList.innerHTML = ''; fileList.innerHTML = '';
     resultsSummary.innerHTML = ''; renamePrefix.value = ''; renameDateCheck.checked = false;
     renamePreview.textContent = '';
     dropZone.querySelector('.drop-text').textContent = 'ここに写真をドラッグ＆ドロップ';
@@ -344,7 +324,6 @@
         '</div>';
     }
 
-    renderRenameList();
     renameArea.style.display = convertedResults.length > 0 ? 'block' : 'none';
     progressText.textContent = '✅ 完了！';
     resultsSection.style.display = 'block';
