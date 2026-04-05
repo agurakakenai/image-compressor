@@ -14,7 +14,7 @@
   <!-- AdSense: 独自ドメイン取得後に有効化
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2977855943841890" crossorigin="anonymous"></script>
   -->
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
   <header>
@@ -108,6 +108,43 @@
           </div>
         </div>
       </details>
+
+      <!-- サイズプリセット -->
+      <div class="size-preset-section">
+        <h3 class="sub-heading">📧 ファイルサイズの上限</h3>
+        <p class="sub-desc">メール添付やLINE送信に便利。自動でそのサイズ以下に調整します。</p>
+        <div class="size-preset-cards" id="sizePresetCards">
+          <button type="button" class="size-preset active" data-limit="0">
+            <span class="size-preset-icon">❌</span>
+            <span class="size-preset-name">制限なし</span>
+          </button>
+          <button type="button" class="size-preset" data-limit="512000">
+            <span class="size-preset-icon">📱</span>
+            <span class="size-preset-name">LINE向け<br><small>500KB以下</small></span>
+          </button>
+          <button type="button" class="size-preset" data-limit="1048576">
+            <span class="size-preset-icon">✉️</span>
+            <span class="size-preset-name">メール向け<br><small>1MB以下</small></span>
+          </button>
+          <button type="button" class="size-preset" data-limit="2097152">
+            <span class="size-preset-icon">📨</span>
+            <span class="size-preset-name">ゆったり<br><small>2MB以下</small></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- リネーム -->
+      <div class="rename-section">
+        <h3 class="sub-heading">✏️ ファイル名をまとめて変更</h3>
+        <p class="sub-desc">入力すると「会議資料_01.jpg, 会議資料_02.jpg」のように連番で保存されます。空欄なら元のファイル名のまま。</p>
+        <div class="rename-row">
+          <input type="text" id="renamePrefix" class="rename-input" placeholder="例：会議資料" maxlength="50">
+          <label class="rename-date-label">
+            <input type="checkbox" id="renameDateCheck"> 日付をつける
+          </label>
+        </div>
+        <p class="rename-preview" id="renamePreview"></p>
+      </div>
     </section>
 
     <!-- ===== STEP 3 ===== -->
@@ -255,6 +292,6 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

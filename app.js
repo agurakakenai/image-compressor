@@ -1,6 +1,14 @@
 (() => {
   'use strict';
 
+  // Show sidebar ads only when AdSense fills them
+  document.querySelectorAll('.ad-sidebar').forEach(function(el) {
+    var ins = el.querySelector('.adsbygoogle');
+    if (ins && ins.dataset.adStatus === 'filled') {
+      el.classList.add('ad-loaded');
+    }
+  });
+
   var MAX_FILES = 10;
 
   var dropZone = document.getElementById('dropZone');
@@ -16,6 +24,7 @@
   var qualityNote = document.getElementById('qualityNote');
   var outputFormat = document.getElementById('outputFormat');
   var presetCards = document.getElementById('presetCards');
+  var sizePresetCards = document.getElementById('sizePresetCards');
   var maxWidthSlider = document.getElementById('maxWidth');
   var maxWidthValue = document.getElementById('maxWidthValue');
   var convertBtn = document.getElementById('convertBtn');
@@ -29,9 +38,13 @@
   var downloadAllBtn = document.getElementById('downloadAllBtn');
   var downloadZipBtn = document.getElementById('downloadZipBtn');
   var restartBtn = document.getElementById('restartBtn');
+  var renamePrefix = document.getElementById('renamePrefix');
+  var renameDateCheck = document.getElementById('renameDateCheck');
+  var renamePreview = document.getElementById('renamePreview');
 
   var selectedFiles = [];
   var convertedResults = [];
+  var sizeLimit = 0; // 0 = no limit
 
   var FORMAT_MAP = {
     'heic': { label: 'HEIC', badge: 'badge-heic' },
@@ -47,7 +60,7 @@
     'svg':  { label: 'SVG',  badge: 'badge-unknown' },
   };
 
-  // === Preset card click ===
+  // === Preset card click (format) ===
   presetCards.addEventListener('click', function(e) {
     var card = e.target.closest('.preset-card');
     if (!card) return;
@@ -58,6 +71,36 @@
     outputFormat.value = card.getAttribute('data-format');
     qualityNote.classList.toggle('visible', outputFormat.value === 'image/png');
   });
+
+  // === Size preset click ===
+  sizePresetCards.addEventListener('click', function(e) {
+    var card = e.target.closest('.size-preset');
+    if (!card) return;
+    sizePresetCards.querySelectorAll('.size-preset').forEach(function(c) {
+      c.classList.remove('active');
+    });
+    card.classList.add('active');
+    sizeLimit = parseInt(card.getAttribute('data-limit'), 10) || 0;
+  });
+
+  // === Rename preview ===
+  function updateRenamePreview() {
+    var prefix = renamePrefix.value.trim();
+    if (!prefix) {
+      renamePreview.textContent = '';
+      return;
+    }
+    var dateStr = '';
+    if (renameDateCheck.checked) {
+      var d = new Date();
+      dateStr = d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0') + '_';
+    }
+    renamePreview.textContent = '例: ' + dateStr + prefix + '_01.jpg, ' + dateStr + prefix + '_02.jpg …';
+  }
+  renamePrefix.addEventListener('input', updateRenamePreview);
+  renameDateCheck.addEventListener('change', updateRenamePreview);
 
   // === File selection ===
   fileBtnTrigger.addEventListener('click', function(e) {
@@ -90,7 +133,7 @@
     if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files);
   });
 
-  // Clipboard paste support
+  // Clipboard paste
   document.addEventListener('paste', function(e) {
     var items = e.clipboardData && e.clipboardData.items;
     if (!items) return;
@@ -107,12 +150,8 @@
     }
   });
 
-  // === Clear all ===
-  clearAllBtn.addEventListener('click', function() {
-    resetAll();
-  });
-
-  // === Restart ===
+  // === Clear / Restart ===
+  clearAllBtn.addEventListener('click', function() { resetAll(); });
   restartBtn.addEventListener('click', function() {
     resetAll();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -135,17 +174,14 @@
   function addFiles(newFiles) {
     var toAdd = Array.from(newFiles);
     var remaining = MAX_FILES - selectedFiles.length;
-
     if (remaining <= 0) {
       alert('一度に変換できるのは ' + MAX_FILES + ' 枚までです。\n「ぜんぶ取り消す」を押してからやり直してください。');
       return;
     }
-
     if (toAdd.length > remaining) {
       alert('あと ' + remaining + ' 枚まで追加できます。\n先頭の ' + remaining + ' 枚を追加します。');
       toAdd = toAdd.slice(0, remaining);
     }
-
     selectedFiles = selectedFiles.concat(toAdd);
     updateUI();
   }
@@ -166,7 +202,6 @@
     progressSection.style.display = 'none';
     resultsList.innerHTML = '';
     convertedResults = [];
-
     if (selectedFiles.length > 0) {
       dropZone.querySelector('.drop-text').textContent =
         '✅ ' + selectedFiles.length + ' 枚えらび済み（追加もできます）';
@@ -174,16 +209,14 @@
       fileListSection.style.display = 'block';
       settings.style.display = 'block';
       step3.style.display = 'block';
-
-      // Scroll to step 2 smoothly
       settings.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
+  // === Detect format ===
   function detectFormat(file) {
     var ext = getExtension(file.name).toLowerCase();
     if (FORMAT_MAP[ext]) return { ext: ext, label: FORMAT_MAP[ext].label, badge: FORMAT_MAP[ext].badge };
-
     var mime = file.type;
     if (mime === 'image/heic' || mime === 'image/heif') return { ext: 'heic', label: 'HEIC', badge: 'badge-heic' };
     if (mime === 'image/jpeg') return { ext: 'jpeg', label: 'JPEG', badge: 'badge-jpeg' };
@@ -192,7 +225,6 @@
     if (mime === 'image/gif') return { ext: 'gif', label: 'GIF', badge: 'badge-gif' };
     if (mime === 'image/bmp') return { ext: 'bmp', label: 'BMP', badge: 'badge-bmp' };
     if (mime === 'image/tiff') return { ext: 'tiff', label: 'TIFF', badge: 'badge-tiff' };
-
     return { ext: ext || '?', label: ext.toUpperCase() || '不明', badge: 'badge-unknown' };
   }
 
@@ -202,6 +234,7 @@
       file.type === 'image/heic' || file.type === 'image/heif';
   }
 
+  // === Preview ===
   function createPreview(file, container) {
     if (isHeic(file)) {
       var placeholder = document.createElement('div');
@@ -217,9 +250,7 @@
           img.alt = 'プレビュー';
           placeholder.replaceWith(img);
         })
-        .catch(function() {
-          placeholder.textContent = '📱';
-        });
+        .catch(function() { placeholder.textContent = '📱'; });
     } else {
       var url = URL.createObjectURL(file);
       var img = document.createElement('img');
@@ -249,7 +280,6 @@
           '<div class="file-item-meta">' + formatSize(file.size) + '</div>' +
         '</div>' +
         '<span class="file-item-badge ' + fmt.badge + '">' + escapeHtml(fmt.label) + '</span>';
-
       var delBtn = document.createElement('button');
       delBtn.type = 'button';
       delBtn.className = 'file-item-delete';
@@ -260,7 +290,6 @@
         removeFile(parseInt(this.getAttribute('data-index'), 10));
       });
       item.appendChild(delBtn);
-
       createPreview(file, item);
       fileList.appendChild(item);
     });
@@ -270,13 +299,80 @@
   qualitySlider.addEventListener('input', function() {
     qualityValue.textContent = qualitySlider.value;
   });
-
   maxWidthSlider.addEventListener('input', function() {
     var v = parseInt(maxWidthSlider.value, 10);
     maxWidthValue.textContent = v === 0 ? '変更なし' : v + 'px';
   });
 
-  // === Convert ===
+  // === Build output filename ===
+  function buildFileName(originalName, index, ext) {
+    var prefix = renamePrefix.value.trim();
+    if (!prefix) {
+      var baseName = originalName.replace(/\.[^.]+$/, '') || 'pasted-image';
+      return baseName + ext;
+    }
+    var dateStr = '';
+    if (renameDateCheck.checked) {
+      var d = new Date();
+      dateStr = d.getFullYear() + '-' +
+        String(d.getMonth() + 1).padStart(2, '0') + '-' +
+        String(d.getDate()).padStart(2, '0') + '_';
+    }
+    var num = String(index + 1).padStart(2, '0');
+    return dateStr + prefix + '_' + num + ext;
+  }
+
+  // === Convert with size limit (binary search quality) ===
+  async function convertWithSizeLimit(file, format, maxW, targetBytes, baseQuality) {
+    var blob = await rawConvert(file, baseQuality, format, maxW);
+
+    // PNG is lossless — can't reduce quality, so skip
+    if (format === 'image/png' || targetBytes <= 0) return blob;
+
+    // Already within limit
+    if (blob.size <= targetBytes) return blob;
+
+    // Binary search for best quality that fits
+    var lo = 0.1, hi = baseQuality, bestBlob = blob;
+    for (var attempt = 0; attempt < 7; attempt++) {
+      var mid = (lo + hi) / 2;
+      var candidate = await rawConvert(file, mid, format, maxW);
+      if (candidate.size <= targetBytes) {
+        bestBlob = candidate;
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+
+    // If still over, try with aggressive resize
+    if (bestBlob.size > targetBytes && maxW === 0) {
+      var resizeW = 1920;
+      while (resizeW >= 320 && bestBlob.size > targetBytes) {
+        bestBlob = await rawConvert(file, lo, format, resizeW);
+        resizeW = Math.round(resizeW * 0.7);
+      }
+    }
+
+    return bestBlob;
+  }
+
+  // Raw convert (HEIC or canvas)
+  async function rawConvert(file, quality, format, maxW) {
+    if (isHeic(file)) {
+      var blob = await heic2any({
+        blob: file,
+        toType: format,
+        quality: format === 'image/png' ? undefined : quality,
+      });
+      if (Array.isArray(blob)) blob = blob[0];
+      if (maxW > 0) blob = await resizeBlob(blob, quality, format, maxW);
+      return blob;
+    }
+    return canvasConvert(file, quality, format, maxW);
+  }
+
+  // === Main convert handler ===
   convertBtn.addEventListener('click', async function() {
     if (selectedFiles.length === 0) return;
     convertBtn.disabled = true;
@@ -295,9 +391,8 @@
     var format = outputFormat.value;
     var maxW = parseInt(maxWidthSlider.value, 10);
 
-    var totalOriginal = 0;
-    var totalConverted = 0;
-    var successCount = 0;
+    var totalOriginal = 0, totalConverted = 0, successCount = 0;
+    var ext = format === 'image/jpeg' ? '.jpg' : format === 'image/png' ? '.png' : '.webp';
 
     for (var i = 0; i < selectedFiles.length; i++) {
       var file = selectedFiles[i];
@@ -306,7 +401,22 @@
       progressBar.style.width = ((i + 1) / selectedFiles.length * 100) + '%';
 
       try {
-        var result = await convertFile(file, quality, format, maxW);
+        var blob = await convertWithSizeLimit(file, format, maxW, sizeLimit, quality);
+        var fmt = detectFormat(file);
+        var toExt = ext.replace('.', '').toUpperCase();
+        var fileName = buildFileName(file.name, i, ext);
+        var thumbUrl = URL.createObjectURL(blob);
+
+        var result = {
+          originalName: file.name,
+          originalSize: file.size,
+          convertedBlob: blob,
+          convertedSize: blob.size,
+          fileName: fileName,
+          thumbUrl: thumbUrl,
+          fromExt: fmt.label,
+          toExt: toExt,
+        };
         convertedResults.push(result);
         renderResultCard(result);
         totalOriginal += result.originalSize;
@@ -319,14 +429,23 @@
 
     if (successCount > 0) {
       var savedPct = totalOriginal > 0
-        ? ((1 - totalConverted / totalOriginal) * 100).toFixed(1)
-        : 0;
+        ? ((1 - totalConverted / totalOriginal) * 100).toFixed(1) : 0;
       var sign = savedPct >= 0 ? '小さくなりました' : '大きくなりました';
+      var sizeWarn = '';
+      if (sizeLimit > 0) {
+        var overCount = convertedResults.filter(function(r) { return r.convertedSize > sizeLimit; }).length;
+        if (overCount > 0) {
+          sizeWarn = '<div class="summary-item"><span class="summary-label">⚠️ サイズ超過</span><span class="summary-value text-red">' + overCount + ' 枚が上限を超えています</span></div>';
+        } else {
+          sizeWarn = '<div class="summary-item"><span class="summary-label">📧 サイズ制限</span><span class="summary-value text-green">全枚クリア ✓</span></div>';
+        }
+      }
       resultsSummary.innerHTML =
         '<div class="summary-card">' +
           '<div class="summary-item"><span class="summary-label">変換成功</span><span class="summary-value">' + successCount + ' / ' + selectedFiles.length + ' 枚</span></div>' +
           '<div class="summary-item"><span class="summary-label">合計サイズ</span><span class="summary-value">' + formatSize(totalOriginal) + ' → ' + formatSize(totalConverted) + '</span></div>' +
           '<div class="summary-item"><span class="summary-label">サイズ変化</span><span class="summary-value ' + (savedPct >= 0 ? 'text-green' : 'text-red') + '">' + Math.abs(savedPct) + '% ' + sign + '</span></div>' +
+          sizeWarn +
         '</div>';
     }
 
@@ -338,71 +457,24 @@
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
-  async function convertFile(file, quality, format, maxW) {
-    var fmt = detectFormat(file);
-    var blob;
-
-    if (isHeic(file)) {
-      blob = await heic2any({
-        blob: file,
-        toType: format,
-        quality: format === 'image/png' ? undefined : quality,
-      });
-      if (Array.isArray(blob)) blob = blob[0];
-      if (maxW > 0) {
-        blob = await resizeBlob(blob, quality, format, maxW);
-      }
-    } else {
-      blob = await canvasConvert(file, quality, format, maxW);
-    }
-
-    var ext = format === 'image/jpeg' ? '.jpg'
-      : format === 'image/png' ? '.png' : '.webp';
-    var toExt = ext.replace('.', '').toUpperCase();
-    var baseName = file.name.replace(/\.[^.]+$/, '') || 'pasted-image';
-    var thumbUrl = URL.createObjectURL(blob);
-
-    return {
-      originalName: file.name,
-      originalSize: file.size,
-      convertedBlob: blob,
-      convertedSize: blob.size,
-      fileName: baseName + ext,
-      thumbUrl: thumbUrl,
-      fromExt: fmt.label,
-      toExt: toExt,
-    };
-  }
-
+  // === Canvas / Resize helpers ===
   function resizeBlob(blob, quality, format, maxW) {
     return new Promise(function(resolve, reject) {
       var img = new Image();
       var url = URL.createObjectURL(blob);
       img.onload = function() {
         URL.revokeObjectURL(url);
-        var w = img.width;
-        var h = img.height;
-        if (maxW > 0 && w > maxW) {
-          h = Math.round(h * (maxW / w));
-          w = maxW;
-        }
+        var w = img.width, h = img.height;
+        if (maxW > 0 && w > maxW) { h = Math.round(h * (maxW / w)); w = maxW; }
         var canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
+        canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        canvas.toBlob(
-          function(b) {
-            if (!b) { reject(new Error('リサイズに失敗しました')); return; }
-            resolve(b);
-          },
-          format,
-          format === 'image/png' ? undefined : quality
-        );
+        canvas.toBlob(function(b) {
+          if (!b) { reject(new Error('リサイズに失敗')); return; }
+          resolve(b);
+        }, format, format === 'image/png' ? undefined : quality);
       };
-      img.onerror = function() {
-        URL.revokeObjectURL(url);
-        reject(new Error('リサイズ用画像の読み込みに失敗'));
-      };
+      img.onerror = function() { URL.revokeObjectURL(url); reject(new Error('リサイズ失敗')); };
       img.src = url;
     });
   }
@@ -413,33 +485,22 @@
       var url = URL.createObjectURL(file);
       img.onload = function() {
         URL.revokeObjectURL(url);
-        var w = img.width;
-        var h = img.height;
-        if (maxW > 0 && w > maxW) {
-          h = Math.round(h * (maxW / w));
-          w = maxW;
-        }
+        var w = img.width, h = img.height;
+        if (maxW > 0 && w > maxW) { h = Math.round(h * (maxW / w)); w = maxW; }
         var canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
+        canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        canvas.toBlob(
-          function(blob) {
-            if (!blob) { reject(new Error('変換に失敗しました')); return; }
-            resolve(blob);
-          },
-          format,
-          format === 'image/png' ? undefined : quality
-        );
+        canvas.toBlob(function(blob) {
+          if (!blob) { reject(new Error('変換に失敗')); return; }
+          resolve(blob);
+        }, format, format === 'image/png' ? undefined : quality);
       };
-      img.onerror = function() {
-        URL.revokeObjectURL(url);
-        reject(new Error('画像の読み込みに失敗しました'));
-      };
+      img.onerror = function() { URL.revokeObjectURL(url); reject(new Error('画像読み込み失敗')); };
       img.src = url;
     });
   }
 
+  // === Utilities ===
   function getExtension(name) {
     var m = name.match(/\.([^.]+)$/);
     return m ? m[1] : '';
@@ -454,6 +515,10 @@
   function renderResultCard(result) {
     var card = document.createElement('div');
     card.className = 'result-card';
+    var sizeClass = '';
+    if (sizeLimit > 0) {
+      sizeClass = result.convertedSize <= sizeLimit ? ' size-ok' : ' size-over';
+    }
     card.innerHTML =
       '<img class="result-thumb" src="' + result.thumbUrl + '" alt="プレビュー">' +
       '<div class="result-info">' +
@@ -462,7 +527,8 @@
           '<span class="result-format from">' + escapeHtml(result.fromExt) + '</span>' +
           '<span class="result-arrow">→</span>' +
           '<span class="result-format to">' + escapeHtml(result.toExt) + '</span>' +
-          '  ' + formatSize(result.originalSize) + ' → ' + formatSize(result.convertedSize) +
+          '  ' + formatSize(result.originalSize) + ' → ' +
+          '<span class="' + sizeClass + '">' + formatSize(result.convertedSize) + '</span>' +
         '</div>' +
       '</div>';
     var dlBtn = document.createElement('button');
@@ -509,7 +575,6 @@
     if (convertedResults.length === 0) return;
     downloadZipBtn.disabled = true;
     downloadZipBtn.querySelector('.download-main-text').textContent = 'ZIP を作っています…';
-
     try {
       var zip = new JSZip();
       var usedNames = {};
@@ -517,15 +582,11 @@
         var name = r.fileName;
         if (usedNames[name]) {
           var count = usedNames[name]++;
-          var parts = name.split('.');
-          var ext = parts.pop();
+          var parts = name.split('.'); var ext = parts.pop();
           name = parts.join('.') + '_' + count + '.' + ext;
-        } else {
-          usedNames[name] = 1;
-        }
+        } else { usedNames[name] = 1; }
         zip.file(name, r.convertedBlob);
       });
-
       var zipBlob = await zip.generateAsync({ type: 'blob' });
       var a = document.createElement('a');
       a.href = URL.createObjectURL(zipBlob);
@@ -537,7 +598,6 @@
     } catch (err) {
       alert('ZIPの作成に失敗しました: ' + err.message);
     }
-
     downloadZipBtn.disabled = false;
     downloadZipBtn.querySelector('.download-main-text').textContent = '変換した写真をダウンロード';
   });

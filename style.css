@@ -177,6 +177,56 @@ header h1 { font-size: 2.2rem; margin-bottom: 8px; letter-spacing: 0.02em; }
 .quality-note { font-size: 0.8rem; color: #aaa; margin-top: 6px; display: none; }
 .quality-note.visible { display: block; }
 
+/* === Size Presets === */
+.size-preset-section, .rename-section { margin-top: 24px; }
+.sub-heading { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; color: #1a1a1a; }
+.sub-desc { font-size: 0.88rem; color: #888; margin-bottom: 14px; line-height: 1.6; }
+
+.size-preset-cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+.size-preset {
+  background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 12px;
+  padding: 14px 10px; text-align: center; cursor: pointer;
+  transition: all 0.2s; display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+}
+.size-preset:hover { border-color: #93b4ff; background: #f0f5ff; }
+.size-preset.active {
+  border-color: #2563eb; background: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+}
+.size-preset-icon { font-size: 1.6rem; }
+.size-preset-name { font-size: 0.85rem; font-weight: 700; color: #333; line-height: 1.4; }
+.size-preset-name small { font-weight: 600; color: #888; }
+
+/* === Rename === */
+.rename-row {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.rename-input {
+  flex: 1; min-width: 180px; padding: 12px 16px; border: 2px solid #e5e7eb;
+  border-radius: 12px; font-size: 1rem; transition: border-color 0.2s;
+}
+.rename-input:focus { outline: none; border-color: #2563eb; }
+.rename-input::placeholder { color: #ccc; }
+.rename-date-label {
+  display: flex; align-items: center; gap: 6px; font-size: 0.9rem;
+  font-weight: 600; color: #666; cursor: pointer; white-space: nowrap;
+}
+.rename-date-label input[type="checkbox"] {
+  width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer;
+}
+.rename-preview {
+  margin-top: 8px; font-size: 0.85rem; color: #2563eb; font-weight: 600;
+  min-height: 1.4em;
+}
+
+/* Size indicators in results */
+.size-ok { color: #16a34a; font-weight: 700; }
+.size-over { color: #dc2626; font-weight: 700; }
+
 /* === STEP 3 : Convert Button === */
 .convert-btn {
   width: 100%; padding: 24px; display: flex; align-items: center;
@@ -340,4 +390,7 @@ footer {
   .file-item-thumb, .file-item-thumb-placeholder { width: 52px; height: 52px; }
   .file-list-header { flex-direction: column; gap: 8px; align-items: stretch; }
   .clear-all-btn { text-align: center; }
+  .size-preset-cards { grid-template-columns: repeat(2, 1fr); }
+  .rename-row { flex-direction: column; }
+  .rename-input { min-width: 0; width: 100%; }
 }
