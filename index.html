@@ -12,13 +12,14 @@
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://agurakakenai.github.io/image-compressor/">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2977855943841890" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
   <header>
     <div class="container">
-      <h1>🔄 画像形式変換ツール</h1>
-      <p class="subtitle">ドラッグ＆ドロップで拡張子を自動判定 → 好きな形式に変換</p>
+      <h1>📷 写真かんたん変換</h1>
+      <p class="subtitle">iPhoneの写真もOK！ 3ステップでパソコンで使える形式に変換できます</p>
+      <p class="subtitle-safe">🔒 写真はあなたのパソコンの中だけで処理されます。どこにも送信されません。</p>
     </div>
   </header>
 
@@ -30,58 +31,96 @@
   </div>
 
   <main class="container">
-    <section class="drop-zone" id="dropZone">
-      <div class="drop-zone-content">
-        <div class="drop-icon">📁</div>
-        <p class="drop-text">画像ファイルをドラッグ＆ドロップ</p>
-        <p class="drop-subtext">または</p>
-        <button type="button" class="file-btn" id="fileBtnTrigger">ファイルを選択</button>
-        <input type="file" id="fileInput" accept=".heic,.heif,.jpg,.jpeg,.png,.webp,.bmp,.gif,.tiff,.tif,.svg,image/*" multiple hidden>
-        <p class="drop-hint">HEIC / JPEG / PNG / WebP / GIF / BMP / TIFF 対応 ・ 最大10枚まで追加OK<br>📋 クリップボードから貼り付け（Ctrl+V）にも対応</p>
+
+    <!-- ===== STEP 1 ===== -->
+    <section class="step-section" id="step1">
+      <div class="step-badge">ステップ 1</div>
+      <h2 class="step-title">変換したい写真をえらんでください</h2>
+
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-zone-content">
+          <div class="drop-icon">📁</div>
+          <p class="drop-text">ここに写真をドラッグ＆ドロップ</p>
+          <p class="drop-subtext">または</p>
+          <button type="button" class="file-btn" id="fileBtnTrigger">📂 写真をえらぶ</button>
+          <input type="file" id="fileInput" accept=".heic,.heif,.jpg,.jpeg,.png,.webp,.bmp,.gif,.tiff,.tif,.svg,image/*" multiple hidden>
+          <p class="drop-hint">iPhone写真(HEIC) / JPEG / PNG など、たいていの画像に対応しています<br>10枚まで一度に変換できます</p>
+        </div>
       </div>
     </section>
 
-    <!-- ファイル一覧 -->
-    <section class="file-list-section" id="fileListSection" style="display:none;">
+    <!-- ファイル一覧（写真選択後に表示） -->
+    <section class="step-section file-list-section" id="fileListSection" style="display:none;">
       <div class="file-list-header">
-        <h2>読み込んだファイル</h2>
-        <button type="button" class="clear-all-btn" id="clearAllBtn" title="すべてクリア">🗑 すべてクリア</button>
+        <h2 class="step-title-sm">✅ えらんだ写真</h2>
+        <button type="button" class="clear-all-btn" id="clearAllBtn">🗑 ぜんぶ取り消す</button>
       </div>
       <div class="file-list" id="fileList"></div>
+      <p class="file-list-tip">💡 写真を追加したいときは、上のエリアにもう一度ドロップしてください</p>
     </section>
 
-    <!-- 変換設定 -->
-    <section class="settings" id="settings" style="display:none;">
-      <h2>変換設定</h2>
-      <div class="settings-grid">
-        <div class="setting-item">
-          <label for="outputFormat">変換先の形式</label>
-          <select id="outputFormat">
-            <option value="image/jpeg" selected>JPEG (.jpg)</option>
-            <option value="image/png">PNG (.png)</option>
-            <option value="image/webp">WebP (.webp)</option>
-          </select>
-        </div>
-        <div class="setting-item">
-          <label for="quality">品質: <span id="qualityValue">92</span>%</label>
-          <input type="range" id="quality" min="10" max="100" value="92">
-          <p class="quality-note" id="qualityNote">※ PNGは可逆圧縮のため品質設定は適用されません</p>
-        </div>
-        <div class="setting-item">
-          <label for="maxWidth">最大幅: <span id="maxWidthValue">変更なし</span></label>
-          <input type="range" id="maxWidth" min="0" max="4000" value="0" step="100">
-          <p class="resize-note">0 = リサイズなし（元のサイズを維持）</p>
-        </div>
-        <div class="setting-item setting-item-full">
-          <button class="convert-btn" id="convertBtn">🔄 変換する</button>
-        </div>
+    <!-- ===== STEP 2 ===== -->
+    <section class="step-section" id="settings" style="display:none;">
+      <div class="step-badge">ステップ 2</div>
+      <h2 class="step-title">どの形式に変換しますか？</h2>
+      <p class="step-desc">わからなければ「おまかせ（JPEG）」でOK！ ほとんどの場合これで大丈夫です。</p>
+
+      <div class="preset-cards" id="presetCards">
+        <button type="button" class="preset-card active" data-format="image/jpeg">
+          <span class="preset-icon">⭐</span>
+          <span class="preset-name">おまかせ（JPEG）</span>
+          <span class="preset-desc">いちばん使われている形式。<br>迷ったらコレ！</span>
+          <span class="preset-recommend">おすすめ</span>
+        </button>
+        <button type="button" class="preset-card" data-format="image/png">
+          <span class="preset-icon">✨</span>
+          <span class="preset-name">高画質（PNG）</span>
+          <span class="preset-desc">文字や図をくっきり残したいとき。<br>ファイルは大きめになります。</span>
+        </button>
+        <button type="button" class="preset-card" data-format="image/webp">
+          <span class="preset-icon">🪶</span>
+          <span class="preset-name">軽い形式（WebP）</span>
+          <span class="preset-desc">メール添付やホームページ用に。<br>きれいなまま軽くなります。</span>
+        </button>
       </div>
+      <select id="outputFormat" hidden>
+        <option value="image/jpeg" selected>JPEG (.jpg)</option>
+        <option value="image/png">PNG (.png)</option>
+        <option value="image/webp">WebP (.webp)</option>
+      </select>
+
+      <!-- 詳細設定（折りたたみ） -->
+      <details class="advanced-toggle">
+        <summary>⚙️ こだわり設定（上級者向け）</summary>
+        <div class="advanced-body">
+          <div class="setting-item">
+            <label for="quality">画質のきれいさ: <span id="qualityValue">92</span>%<span class="setting-help">（大きいほどきれい・ファイルも大きい）</span></label>
+            <input type="range" id="quality" min="10" max="100" value="92">
+            <p class="quality-note" id="qualityNote">※ PNG形式はつねに最高画質になるため、この設定は関係ありません</p>
+          </div>
+          <div class="setting-item">
+            <label for="maxWidth">写真の横幅を小さくする: <span id="maxWidthValue">変更なし</span><span class="setting-help">（0＝元のサイズのまま）</span></label>
+            <input type="range" id="maxWidth" min="0" max="4000" value="0" step="100">
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- ===== STEP 3 ===== -->
+    <section class="step-section" id="step3" style="display:none;">
+      <div class="step-badge">ステップ 3</div>
+      <h2 class="step-title">変換スタート！</h2>
+      <p class="step-desc">下のボタンを押すと変換がはじまります。</p>
+      <button type="button" class="convert-btn" id="convertBtn">
+        <span class="convert-btn-icon">🔄</span>
+        <span class="convert-btn-text">変換する</span>
+      </button>
     </section>
 
     <!-- プログレスバー -->
-    <section class="progress-section" id="progressSection" style="display:none;">
+    <section class="step-section progress-section" id="progressSection" style="display:none;">
       <div class="progress-header">
-        <span id="progressText">変換中...</span>
+        <span id="progressText">⏳ 変換しています…しばらくお待ちください</span>
         <span id="progressCount">0 / 0</span>
       </div>
       <div class="progress-bar-outer">
@@ -89,41 +128,51 @@
       </div>
     </section>
 
-    <!-- 結果 -->
-    <section class="results" id="results" style="display:none;">
-      <div class="results-header">
-        <h2>変換結果</h2>
-        <div class="results-actions">
-          <button class="download-zip-btn" id="downloadZipBtn">📦 ZIPでダウンロード</button>
-          <button class="download-all-btn" id="downloadAllBtn">💾 個別にすべてダウンロード</button>
-        </div>
+    <!-- ===== 結果 ===== -->
+    <section class="step-section results" id="results" style="display:none;">
+      <div class="results-done">
+        <div class="results-done-icon">🎉</div>
+        <h2 class="results-done-title">変換できました！</h2>
+        <p class="results-done-desc">下のボタンを押して、変換した写真を保存してください。</p>
       </div>
       <div class="results-summary" id="resultsSummary"></div>
+      <div class="results-download-area">
+        <button type="button" class="download-main-btn" id="downloadZipBtn">
+          <span class="download-main-icon">📥</span>
+          <span class="download-main-text">変換した写真をダウンロード</span>
+          <span class="download-main-sub">（まとめてZIPファイルで保存）</span>
+        </button>
+        <button type="button" class="download-sub-btn" id="downloadAllBtn">写真を1枚ずつ個別にダウンロードする</button>
+      </div>
       <div class="results-list" id="resultsList"></div>
+      <div class="results-restart">
+        <button type="button" class="restart-btn" id="restartBtn">🔄 もう一度はじめから変換する</button>
+      </div>
     </section>
 
+    <!-- 特徴セクション -->
     <section class="features">
       <h2>このツールの特徴</h2>
       <div class="features-grid">
         <div class="feature-card">
-          <div class="feature-icon">🔍</div>
-          <h3>自動形式判定</h3>
-          <p>ドロップされた画像の拡張子・MIME タイプを自動で解析して表示します。</p>
-        </div>
-        <div class="feature-card">
           <div class="feature-icon">📱</div>
-          <h3>iPhone HEIC対応</h3>
-          <p>iPhoneで撮影したHEIC/HEIF形式にも完全対応。JPEG・PNGに簡単変換。</p>
+          <h3>iPhoneの写真もOK</h3>
+          <p>パソコンで開けないiPhone写真（HEIC形式）を、かんたんに変換できます。</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🔒</div>
-          <h3>プライバシー保護</h3>
-          <p>すべてブラウザ内で処理。画像がサーバーに送信されることはありません。</p>
+          <h3>写真は外に出ません</h3>
+          <p>すべてあなたのパソコンの中で処理。写真がインターネットに送られることはありません。</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">💰</div>
+          <div class="feature-icon">🆓</div>
           <h3>完全無料</h3>
-          <p>登録不要・制限なし。何枚でも無料で変換できます。</p>
+          <p>ユーザー登録も不要。いつでも何枚でも無料で使えます。</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">✋</div>
+          <h3>かんたん3ステップ</h3>
+          <p>写真をえらぶ → 形式をえらぶ → 変換ボタンを押す。それだけ！</p>
         </div>
       </div>
     </section>
@@ -131,24 +180,24 @@
     <section class="faq">
       <h2>よくある質問</h2>
       <details>
-        <summary>対応している画像形式は？</summary>
-        <p>入力：HEIC / HEIF / JPEG / PNG / WebP / GIF / BMP / TIFF に対応。出力：JPEG / PNG / WebP から選べます。</p>
+        <summary>iPhoneで撮った写真がパソコンで開けないのですが？</summary>
+        <p>iPhoneは「HEIC」という形式で写真を保存します。このツールで「JPEG」に変換すれば、どのパソコンでも開けるようになります。</p>
       </details>
       <details>
-        <summary>HEICとは何ですか？</summary>
-        <p>HEIC（High Efficiency Image Container）は、iPhoneやiPadで標準的に使われる画像形式です。WindowsやAndroidでは開けないことがあるため、JPEG等への変換が必要になります。</p>
+        <summary>どの形式をえらべばいいですか？</summary>
+        <p>迷ったら「おまかせ（JPEG）」を選んでください。メールに添付したり、Wordに貼ったり、ほぼ何にでも使えます。</p>
       </details>
       <details>
-        <summary>画像はサーバーにアップロードされますか？</summary>
-        <p>いいえ。すべての処理はブラウザ内で行われます。画像データが外部に送信されることは一切ありません。</p>
+        <summary>写真がインターネット上に流出しませんか？</summary>
+        <p>しません。すべての処理はあなたのパソコンのブラウザの中で行われます。写真データが外部に送信されることは一切ありません。</p>
       </details>
       <details>
-        <summary>変換枚数に制限はありますか？</summary>
-        <p>ありません。何枚でも無料で変換できます。</p>
+        <summary>何枚まで変換できますか？</summary>
+        <p>一度に10枚まで変換できます。10枚終わったら、もう一度やれば何枚でもOKです。</p>
       </details>
       <details>
-        <summary>スマートフォンでも使えますか？</summary>
-        <p>はい。レスポンシブ対応済みで、スマートフォンからもご利用いただけます。</p>
+        <summary>スマートフォンからも使えますか？</summary>
+        <p>はい。iPhoneやAndroidのブラウザからもそのまま使えます。</p>
       </details>
     </section>
   </main>
@@ -162,7 +211,7 @@
 
   <footer>
     <div class="container">
-      <p>&copy; 2026 画像形式変換ツール. すべての処理はブラウザ内で完結します。</p>
+      <p>&copy; 2026 写真かんたん変換 ― すべての処理はブラウザ内で完結します。画像がサーバーに送信されることはありません。</p>
     </div>
   </footer>
 
@@ -200,6 +249,6 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
