@@ -19,17 +19,17 @@
   let convertedResults = [];
 
   const FORMAT_MAP = {
-    'heic': { label: 'HEIC', badge: 'badge-heic', icon: '📱' },
-    'heif': { label: 'HEIF', badge: 'badge-heic', icon: '📱' },
-    'jpg':  { label: 'JPEG', badge: 'badge-jpeg', icon: '🖼️' },
-    'jpeg': { label: 'JPEG', badge: 'badge-jpeg', icon: '🖼️' },
-    'png':  { label: 'PNG',  badge: 'badge-png',  icon: '🖼️' },
-    'webp': { label: 'WebP', badge: 'badge-webp', icon: '🖼️' },
-    'gif':  { label: 'GIF',  badge: 'badge-gif',  icon: '🎞️' },
-    'bmp':  { label: 'BMP',  badge: 'badge-bmp',  icon: '🖼️' },
-    'tiff': { label: 'TIFF', badge: 'badge-tiff', icon: '🖼️' },
-    'tif':  { label: 'TIFF', badge: 'badge-tiff', icon: '🖼️' },
-    'svg':  { label: 'SVG',  badge: 'badge-unknown', icon: '📐' },
+    'heic': { label: 'HEIC', badge: 'badge-heic' },
+    'heif': { label: 'HEIF', badge: 'badge-heic' },
+    'jpg':  { label: 'JPEG', badge: 'badge-jpeg' },
+    'jpeg': { label: 'JPEG', badge: 'badge-jpeg' },
+    'png':  { label: 'PNG',  badge: 'badge-png' },
+    'webp': { label: 'WebP', badge: 'badge-webp' },
+    'gif':  { label: 'GIF',  badge: 'badge-gif' },
+    'bmp':  { label: 'BMP',  badge: 'badge-bmp' },
+    'tiff': { label: 'TIFF', badge: 'badge-tiff' },
+    'tif':  { label: 'TIFF', badge: 'badge-tiff' },
+    'svg':  { label: 'SVG',  badge: 'badge-unknown' },
   };
 
   // File selection
@@ -67,7 +67,6 @@
     dropZone.querySelector('.drop-text').textContent =
       selectedFiles.length + ' 件のファイルを選択中';
 
-    // Show file list with detected formats
     renderFileList();
     fileListSection.style.display = 'block';
     settings.style.display = 'block';
@@ -77,7 +76,6 @@
     const ext = getExtension(file.name).toLowerCase();
     if (FORMAT_MAP[ext]) return { ext: ext, ...FORMAT_MAP[ext] };
 
-    // Fallback: try MIME type
     const mime = file.type;
     if (mime === 'image/heic' || mime === 'image/heif') return { ext: 'heic', ...FORMAT_MAP['heic'] };
     if (mime === 'image/jpeg') return { ext: 'jpeg', ...FORMAT_MAP['jpeg'] };
@@ -87,50 +85,99 @@
     if (mime === 'image/bmp') return { ext: 'bmp', ...FORMAT_MAP['bmp'] };
     if (mime === 'image/tiff') return { ext: 'tiff', ...FORMAT_MAP['tiff'] };
 
-    return { ext: ext || '?', label: ext.toUpperCase() || '不明', badge: 'badge-unknown', icon: '❓' };
+    return { ext: ext || '?', label: ext.toUpperCase() || '不明', badge: 'badge-unknown' };
+  }
+
+  function isHeic(file) {
+    const name = file.name.toLowerCase();
+    return name.endsWith('.heic') || name.endsWith('.heif') ||
+      file.type === 'image/heic' || file.type === 'image/heif';
+  }
+
+  // Generate preview thumbnail
+  function createPreview(file, container) {
+    if (isHeic(file)) {
+      // HEIC: use heic2any to generate a small preview
+      var placeholder = document.createElement('div');
+      placeholder.className = 'file-item-thumb-placeholder';
+      placeholder.textContent = '⏳';
+      container.prepend(placeholder);
+      heic2any({ blob: file, toType: 'image/jpeg', quality: 0.3 })
+        .then(function(blob) {
+          if (Array.isArray(blob)) blob = blob[0];
+          var img = document.createElement('img');
+          img.className = 'file-item-thumb';
+          img.src = URL.createObjectURL(blob);
+          img.alt = 'プレビュー';
+          placeholder.replaceWith(img);
+        })
+        .catch(function() {
+          placeholder.textContent = '📱';
+        });
+    } else {
+      // Non-HEIC: use Object URL directly
+      var url = URL.createObjectURL(file);
+      var img = document.createElement('img');
+      img.className = 'file-item-thumb';
+      img.alt = 'プレビュー';
+      img.src = url;
+      img.onerror = function() {
+        URL.revokeObjectURL(url);
+        var ph = document.createElement('div');
+        ph.className = 'file-item-thumb-placeholder';
+        ph.textContent = '🖼️';
+        img.replaceWith(ph);
+      };
+      container.prepend(img);
+    }
   }
 
   function renderFileList() {
     fileList.innerHTML = '';
-    selectedFiles.forEach((file) => {
-      const fmt = detectFormat(file);
-      const item = document.createElement('div');
+    selectedFiles.forEach(function(file) {
+      var fmt = detectFormat(file);
+      var item = document.createElement('div');
       item.className = 'file-item';
+
+      // Info + badge (thumbnail will be prepended)
       item.innerHTML =
-        '<span class="file-item-icon">' + fmt.icon + '</span>' +
         '<div class="file-item-info">' +
           '<div class="file-item-name">' + escapeHtml(file.name) + '</div>' +
-          '<div class="file-item-meta">' + formatSize(file.size) + ' ・ MIME: ' + escapeHtml(file.type || '不明') + '</div>' +
+          '<div class="file-item-meta">' + formatSize(file.size) + ' ・ ' + escapeHtml(fmt.label) + ' (' + escapeHtml(file.type || '不明') + ')</div>' +
         '</div>' +
         '<span class="file-item-badge ' + fmt.badge + '">' + escapeHtml(fmt.label) + '</span>';
+
+      // Add preview thumbnail
+      createPreview(file, item);
+
       fileList.appendChild(item);
     });
   }
 
   // Quality slider
-  qualitySlider.addEventListener('input', () => {
+  qualitySlider.addEventListener('input', function() {
     qualityValue.textContent = qualitySlider.value;
   });
 
-  // Show/hide quality note based on format
-  outputFormat.addEventListener('change', () => {
+  outputFormat.addEventListener('change', function() {
     qualityNote.classList.toggle('visible', outputFormat.value === 'image/png');
   });
 
   // Convert
-  convertBtn.addEventListener('click', async () => {
+  convertBtn.addEventListener('click', async function() {
     if (selectedFiles.length === 0) return;
     convertBtn.disabled = true;
     convertBtn.textContent = '⏳ 変換中...';
     resultsList.innerHTML = '';
     convertedResults = [];
 
-    const quality = parseInt(qualitySlider.value, 10) / 100;
-    const format = outputFormat.value;
+    var quality = parseInt(qualitySlider.value, 10) / 100;
+    var format = outputFormat.value;
 
-    for (const file of selectedFiles) {
+    for (var i = 0; i < selectedFiles.length; i++) {
+      var file = selectedFiles[i];
       try {
-        const result = await convertFile(file, quality, format);
+        var result = await convertFile(file, quality, format);
         convertedResults.push(result);
         renderResultCard(result);
       } catch (err) {
@@ -144,15 +191,9 @@
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
-  function isHeic(file) {
-    const name = file.name.toLowerCase();
-    return name.endsWith('.heic') || name.endsWith('.heif') ||
-      file.type === 'image/heic' || file.type === 'image/heif';
-  }
-
   async function convertFile(file, quality, format) {
-    const fmt = detectFormat(file);
-    let blob;
+    var fmt = detectFormat(file);
+    var blob;
 
     if (isHeic(file)) {
       blob = await heic2any({
@@ -165,11 +206,11 @@
       blob = await canvasConvert(file, quality, format);
     }
 
-    const ext = format === 'image/jpeg' ? '.jpg'
+    var ext = format === 'image/jpeg' ? '.jpg'
       : format === 'image/png' ? '.png' : '.webp';
-    const toExt = ext.replace('.', '').toUpperCase();
-    const baseName = file.name.replace(/\.[^.]+$/, '');
-    const thumbUrl = URL.createObjectURL(blob);
+    var toExt = ext.replace('.', '').toUpperCase();
+    var baseName = file.name.replace(/\.[^.]+$/, '');
+    var thumbUrl = URL.createObjectURL(blob);
 
     return {
       originalName: file.name,
@@ -184,17 +225,17 @@
   }
 
   function canvasConvert(file, quality, format) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
+    return new Promise(function(resolve, reject) {
+      var img = new Image();
+      var url = URL.createObjectURL(file);
+      img.onload = function() {
         URL.revokeObjectURL(url);
-        const canvas = document.createElement('canvas');
+        var canvas = document.createElement('canvas');
         canvas.width = img.width;
         canvas.height = img.height;
         canvas.getContext('2d').drawImage(img, 0, 0);
         canvas.toBlob(
-          (blob) => {
+          function(blob) {
             if (!blob) { reject(new Error('変換に失敗しました')); return; }
             resolve(blob);
           },
@@ -202,7 +243,7 @@
           format === 'image/png' ? undefined : quality
         );
       };
-      img.onerror = () => {
+      img.onerror = function() {
         URL.revokeObjectURL(url);
         reject(new Error('画像の読み込みに失敗しました'));
       };
@@ -211,7 +252,7 @@
   }
 
   function getExtension(name) {
-    const m = name.match(/\.([^.]+)$/);
+    var m = name.match(/\.([^.]+)$/);
     return m ? m[1] : '';
   }
 
@@ -222,7 +263,7 @@
   }
 
   function renderResultCard(result) {
-    const card = document.createElement('div');
+    var card = document.createElement('div');
     card.className = 'result-card';
     card.innerHTML =
       '<img class="result-thumb" src="' + result.thumbUrl + '" alt="プレビュー">' +
@@ -235,16 +276,16 @@
           '  ' + formatSize(result.originalSize) + ' → ' + formatSize(result.convertedSize) +
         '</div>' +
       '</div>';
-    const dlBtn = document.createElement('button');
+    var dlBtn = document.createElement('button');
     dlBtn.className = 'result-download';
     dlBtn.textContent = '💾 ダウンロード';
-    dlBtn.addEventListener('click', () => downloadFile(result));
+    dlBtn.addEventListener('click', function() { downloadFile(result); });
     card.appendChild(dlBtn);
     resultsList.appendChild(card);
   }
 
   function renderErrorCard(name, message) {
-    const card = document.createElement('div');
+    var card = document.createElement('div');
     card.className = 'result-card';
     card.innerHTML =
       '<div class="result-info">' +
@@ -255,13 +296,13 @@
   }
 
   function escapeHtml(str) {
-    const div = document.createElement('div');
+    var div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
   }
 
   function downloadFile(result) {
-    const a = document.createElement('a');
+    var a = document.createElement('a');
     a.href = result.thumbUrl;
     a.download = result.fileName;
     document.body.appendChild(a);
@@ -269,7 +310,7 @@
     document.body.removeChild(a);
   }
 
-  downloadAllBtn.addEventListener('click', () => {
-    convertedResults.forEach((r) => downloadFile(r));
+  downloadAllBtn.addEventListener('click', function() {
+    convertedResults.forEach(function(r) { downloadFile(r); });
   });
 })();

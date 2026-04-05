@@ -43,11 +43,20 @@ header h1 { font-size: 2rem; margin-bottom: 8px; }
 }
 .file-list-section h2 { margin-bottom: 16px; font-size: 1.2rem; }
 .file-item {
-  display: flex; align-items: center; gap: 12px; padding: 10px 0;
+  display: flex; align-items: center; gap: 14px; padding: 12px 0;
   border-bottom: 1px solid #f0f0f0;
 }
 .file-item:last-child { border-bottom: none; }
-.file-item-icon { font-size: 1.5rem; flex-shrink: 0; }
+.file-item-thumb {
+  width: 56px; height: 56px; border-radius: 8px; object-fit: cover;
+  background: #f0f0f0; flex-shrink: 0; border: 1px solid #e0e0e0;
+}
+.file-item-thumb-placeholder {
+  width: 56px; height: 56px; border-radius: 8px; flex-shrink: 0;
+  background: #f0f0f0; border: 1px solid #e0e0e0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; color: #bbb;
+}
 .file-item-info { flex: 1; min-width: 0; }
 .file-item-name { font-weight: 600; font-size: 0.95rem; word-break: break-all; }
 .file-item-meta { font-size: 0.8rem; color: #888; margin-top: 2px; }
@@ -167,4 +176,5 @@ footer {
   .drop-zone { padding: 40px 16px; }
   .result-card { flex-direction: column; text-align: center; }
   .file-item { flex-wrap: wrap; }
+  .file-item-thumb, .file-item-thumb-placeholder { width: 48px; height: 48px; }
 }
