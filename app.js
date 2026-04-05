@@ -3,6 +3,7 @@
 
   const dropZone = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
+  const fileBtnTrigger = document.getElementById('fileBtnTrigger');
   const fileListSection = document.getElementById('fileListSection');
   const fileList = document.getElementById('fileList');
   const settings = document.getElementById('settings');
@@ -32,27 +33,32 @@
     'svg':  { label: 'SVG',  badge: 'badge-unknown' },
   };
 
-  // File selection
-  dropZone.addEventListener('click', (e) => {
-    if (e.target.closest('.file-btn') || e.target === dropZone || e.target.closest('.drop-zone-content')) {
-      fileInput.click();
-    }
+  // File button click - only this triggers file input
+  fileBtnTrigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    fileInput.click();
   });
 
-  fileInput.addEventListener('change', () => {
+  // Drop zone click (excluding the button area)
+  dropZone.addEventListener('click', function(e) {
+    if (e.target === fileBtnTrigger || e.target === fileInput) return;
+    fileInput.click();
+  });
+
+  fileInput.addEventListener('change', function() {
     if (fileInput.files.length > 0) handleFiles(fileInput.files);
   });
 
-  dropZone.addEventListener('dragover', (e) => {
+  dropZone.addEventListener('dragover', function(e) {
     e.preventDefault();
     dropZone.classList.add('drag-over');
   });
 
-  dropZone.addEventListener('dragleave', () => {
+  dropZone.addEventListener('dragleave', function() {
     dropZone.classList.remove('drag-over');
   });
 
-  dropZone.addEventListener('drop', (e) => {
+  dropZone.addEventListener('drop', function(e) {
     e.preventDefault();
     dropZone.classList.remove('drag-over');
     if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
@@ -73,31 +79,29 @@
   }
 
   function detectFormat(file) {
-    const ext = getExtension(file.name).toLowerCase();
-    if (FORMAT_MAP[ext]) return { ext: ext, ...FORMAT_MAP[ext] };
+    var ext = getExtension(file.name).toLowerCase();
+    if (FORMAT_MAP[ext]) return { ext: ext, label: FORMAT_MAP[ext].label, badge: FORMAT_MAP[ext].badge };
 
-    const mime = file.type;
-    if (mime === 'image/heic' || mime === 'image/heif') return { ext: 'heic', ...FORMAT_MAP['heic'] };
-    if (mime === 'image/jpeg') return { ext: 'jpeg', ...FORMAT_MAP['jpeg'] };
-    if (mime === 'image/png') return { ext: 'png', ...FORMAT_MAP['png'] };
-    if (mime === 'image/webp') return { ext: 'webp', ...FORMAT_MAP['webp'] };
-    if (mime === 'image/gif') return { ext: 'gif', ...FORMAT_MAP['gif'] };
-    if (mime === 'image/bmp') return { ext: 'bmp', ...FORMAT_MAP['bmp'] };
-    if (mime === 'image/tiff') return { ext: 'tiff', ...FORMAT_MAP['tiff'] };
+    var mime = file.type;
+    if (mime === 'image/heic' || mime === 'image/heif') return { ext: 'heic', label: 'HEIC', badge: 'badge-heic' };
+    if (mime === 'image/jpeg') return { ext: 'jpeg', label: 'JPEG', badge: 'badge-jpeg' };
+    if (mime === 'image/png') return { ext: 'png', label: 'PNG', badge: 'badge-png' };
+    if (mime === 'image/webp') return { ext: 'webp', label: 'WebP', badge: 'badge-webp' };
+    if (mime === 'image/gif') return { ext: 'gif', label: 'GIF', badge: 'badge-gif' };
+    if (mime === 'image/bmp') return { ext: 'bmp', label: 'BMP', badge: 'badge-bmp' };
+    if (mime === 'image/tiff') return { ext: 'tiff', label: 'TIFF', badge: 'badge-tiff' };
 
     return { ext: ext || '?', label: ext.toUpperCase() || '不明', badge: 'badge-unknown' };
   }
 
   function isHeic(file) {
-    const name = file.name.toLowerCase();
+    var name = file.name.toLowerCase();
     return name.endsWith('.heic') || name.endsWith('.heif') ||
       file.type === 'image/heic' || file.type === 'image/heif';
   }
 
-  // Generate preview thumbnail
   function createPreview(file, container) {
     if (isHeic(file)) {
-      // HEIC: use heic2any to generate a small preview
       var placeholder = document.createElement('div');
       placeholder.className = 'file-item-thumb-placeholder';
       placeholder.textContent = '⏳';
@@ -115,7 +119,6 @@
           placeholder.textContent = '📱';
         });
     } else {
-      // Non-HEIC: use Object URL directly
       var url = URL.createObjectURL(file);
       var img = document.createElement('img');
       img.className = 'file-item-thumb';
@@ -138,23 +141,17 @@
       var fmt = detectFormat(file);
       var item = document.createElement('div');
       item.className = 'file-item';
-
-      // Info + badge (thumbnail will be prepended)
       item.innerHTML =
         '<div class="file-item-info">' +
           '<div class="file-item-name">' + escapeHtml(file.name) + '</div>' +
           '<div class="file-item-meta">' + formatSize(file.size) + ' ・ ' + escapeHtml(fmt.label) + ' (' + escapeHtml(file.type || '不明') + ')</div>' +
         '</div>' +
         '<span class="file-item-badge ' + fmt.badge + '">' + escapeHtml(fmt.label) + '</span>';
-
-      // Add preview thumbnail
       createPreview(file, item);
-
       fileList.appendChild(item);
     });
   }
 
-  // Quality slider
   qualitySlider.addEventListener('input', function() {
     qualityValue.textContent = qualitySlider.value;
   });
@@ -163,7 +160,6 @@
     qualityNote.classList.toggle('visible', outputFormat.value === 'image/png');
   });
 
-  // Convert
   convertBtn.addEventListener('click', async function() {
     if (selectedFiles.length === 0) return;
     convertBtn.disabled = true;
