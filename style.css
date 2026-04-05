@@ -25,10 +25,12 @@ header h1 { font-size: 2.2rem; margin-bottom: 8px; letter-spacing: 0.02em; }
 .ad-sidebar {
   width: 160px; flex-shrink: 0; padding-top: 32px;
   position: sticky; top: 20px; align-self: flex-start; height: fit-content;
+  display: none;
 }
+.ad-sidebar.ad-loaded { display: block; }
 .ad-sidebar .adsbygoogle { min-height: 600px; }
 @media (max-width: 1100px) {
-  .ad-sidebar { display: none; }
+  .ad-sidebar { display: none !important; }
   .page-body { padding: 0; }
 }
 
